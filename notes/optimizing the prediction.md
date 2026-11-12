@@ -34,7 +34,7 @@ y_{i} \mid \underline{x}_{i}
 	\sim \text{Bernoulli}(p)
 $$
 
-## computing $F_{1}$
+# computing $F_{1}$
 
 given:
 - a sequence of points $\{\underline{x}_{i}\}$
@@ -204,8 +204,7 @@ $$
 
 TODO
 
-## $\{\hat{y}_{i} = 0, \hat{y}_{j} = 1\} \to \{\hat{y}_{i} = 1, \hat{y}_{j} = 0\}$
-
+# increase F-score via prediction swap
 
 > suppose we have some $F_{1}$ for which $\hat{y}_{i} = 0, \hat{y}_{j} = 1$ and for some $p_{i}, p_{j}$. what is the effect on $F_{1}$ of swapping these two predictions s.t. $\hat{y}_{i} = 1, \hat{y}_{j} = 0$?
 
@@ -350,7 +349,7 @@ E \left[F_{1}'\right]
 			\\
 		\\
 	&=
-		(1 - p_{i} - p_{j})
+		(1 - p_{i} - p_{j} + 2 p_{i} p_{j})
 			\cdot \left(\frac
 				{2 \text{TP}}
 				{2 \text{TP} + \text{FP} + \text{FN}}
@@ -370,7 +369,7 @@ E \left[F_{1}'\right]
 			\\
 		\\
 	&= \frac{2 \left(
-			(1 - p_{i} - p_{j}) (\text{TP})
+			(1 - p_{i} - p_{j} + 2 p_{i} p_{j}) (\text{TP})
 			+ (p_{j} - p_{i} p_{j}) (\text{TP} - 1)
 			+ (p_{i} - p_{i} p_{j}) (\text{TP} + 1)
 		\right)}
@@ -380,18 +379,74 @@ E \left[F_{1}'\right]
 			\text{TP}
 			+ p_{i} (\cancel{-\text{TP} + \text{TP}} + 1)
 			+ p_{j} (\cancel{-\text{TP} + \text{TP}} - 1)
-			- p_{i} p_{j} (\text{TP} \cancel{- 1} + \text{TP} \cancel{+ 1})
+			+ p_{i} p_{j} (\cancel{2 \text{TP}} - (\cancel{\text{TP}} \cancel{- 1}) - (\cancel{\text{TP}} \cancel{+ 1}))
 		\right)}
 		{2 \text{TP} + \text{FP} + \text{FN}}
 		\\
-	&= \frac{2 \left(
-			\text{TP} (1 - 2 p_{i} p_{j}) + p_{i} - p_{j}
-		\right)}
+	&= \frac
+		{2 \left(\text{TP} + p_{i} - p_{j}\right)}
 		{2 \text{TP} + \text{FP} + \text{FN}}
 		\\
 \end{align}
 $$
 
+compared to the original $F_{1}$-score:
 
-TODO
+$$
+\begin{align}
+&&E [F_{1}] &\lessgtr E \left[F_{1}'\right] \\
+\iff &&\frac
+	{2 \text{TP}}
+	{2 \text{TP} + \text{FP} + \text{FN}}
+	&\lessgtr \frac
+		{2 \left(\text{TP} + p_{i} - p_{j}\right)}
+		{2 \text{TP} + \text{FP} + \text{FN}}
+	\\
+\iff &&2 \text{TP}
+	&\lessgtr 2 \left(\text{TP} + p_{i} - p_{j}\right)
+	& 2 \text{TP} + \text{FP} + \text{FN} > 0
+	\\
+\iff &&0
+	&\lessgtr 2 \left(p_{i} - p_{j}\right)
+	\\
+\iff &&p_{j} &\lessgtr p_{i}
+	& 2 > 0
+	\\
+\end{align}
+$$
 
+thus, we have shown that **we can increase the expectation of the $F_{1}$ score by switching predictions**, s.t.:
+- a point $i$ with a higher positive-response probability $p_{i}$ is assigned a positive response $\cancel{\hat{y}_{i} = 0} \to \hat{y}_{i} = 1$
+- a point $j$ with a lower positive-response probability $p_{j} < p_{i}$ is assigned a negative response $\cancel{\hat{y}_{j} = 1} \to  \hat{y}_{j} = 0$
+
+specifically:
+
+$$
+\to \boxed{
+	p_{i} > p_{j}
+	\implies E \left[F_{1}'\right] > E [F_{1}]
+}
+$$
+
+where $F_{1}'$ is the $F_{1}$-score after switching predictions
+
+## implication - thresholds are optimal
+
+given [[#increase F-score via prediction swap|the swap result]], we can show that **any optimal strategy can be described as some threshold on the positive response probabilities $\{p_{i}\}_{i = 1}^{n}$**
+
+proof outline:
+- a strategy for "thresholding" involves predictions $\{\hat{y}_{i}\}_{i = 1}^{n}$ s.t., for some threshold value $T_{p}$:
+	1. any point $i$ with a probability below the threshold $p_{i} < T_{p}$ gets a negative prediction $\hat{y}_{i} = 0$
+	2. any point $i$ with a probability above (or equal to) the threshold $p_{i} \geq T_{p}$ gets a positive prediction $\hat{y}_{i} = 1$
+- a strategy cannot be expressed as a threshold strategy iff, for some value $T_{p}$:
+	- there exists a point indexed at $i$, where the probability is beneath the value $p_{i} < T_{p}$ and the prediction is positive $\hat{y}_{i} = 1$
+		- to satisfy property 1, the threshold value must be *decreased* s.t. $T_{p} < p_{i}$
+	- AND there also exists a point indexed at $j$, where the probability is above the value $p_{j} \geq T_{p}$ and the prediction is negative $\hat{y}_{i} = 0$
+		- to satisfy property 2, the threshold value must be *increased* s.t. $T_{p} \geq p_{j}$
+	- -> the threshold cannot be both increased and decreased
+	- => the properties are not satisfiable
+	- TODO need to show the reverse implication
+- any strategy that is not a threshold strategy can swap predictions at $(i, j)$, where $p_{i} < T_{p} \leq p_{j}$ and $\hat{y}_{i} = 1, \hat{y}_{j} = 0$
+- -> as shown in [[#increase F-score via prediction swap|the swap-increase property]], such a swap *must* increase the F-score
+- => the non-threshold strategy is NOT optimal
+- => any optimal strategy MUST be a threshold strategy
