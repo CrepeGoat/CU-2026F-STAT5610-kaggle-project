@@ -218,7 +218,7 @@ given:
 	- specifically, we don't know the actual response values $\{y_{i}\}_{i = 1}^{n}$
 - some probability of each response value being positive $p_{i} := \Pr (y_{i} = 1)$
 
-now suppose we switch the predictions for two points at indices $i, j$
+suppose we switch the predictions for two points at indices $i, j$
 - assume our predictions are opposing; i.e. $\hat{y}_{i} = 0 \neq 1 = \hat{y}_{j}$
 - -> switching predictions yields $\hat{y}_{i}' = 1 \neq 0 = \hat{y}_{j}'$
 
@@ -415,11 +415,8 @@ $$
 \end{align}
 $$
 
-thus, we have shown that **we can increase the expectation of the $F_{1}$ score by switching predictions**, s.t.:
-- a point $i$ with a higher positive-response probability $p_{i}$ is assigned a positive response $\cancel{\hat{y}_{i} = 0} \to \hat{y}_{i} = 1$
-- a point $j$ with a lower positive-response probability $p_{j} < p_{i}$ is assigned a negative response $\cancel{\hat{y}_{j} = 1} \to  \hat{y}_{j} = 0$
 
-specifically:
+thus:
 
 $$
 \to \boxed{
@@ -429,6 +426,11 @@ $$
 $$
 
 where $F_{1}'$ is the $F_{1}$-score after switching predictions
+
+
+specifically, we have shown that **we can increase the expectation of the $F_{1}$ score by switching predictions**, s.t.:
+- a point $i$ with a higher positive-response probability $p_{i}$ is assigned a positive response $\cancel{\hat{y}_{i} = 0} \to \hat{y}_{i} = 1$
+- a point $j$ with a lower positive-response probability $p_{j} < p_{i}$ is assigned a negative response $\cancel{\hat{y}_{j} = 1} \to  \hat{y}_{j} = 0$
 
 ## implication - thresholds are optimal
 
@@ -447,6 +449,194 @@ proof outline:
 	- => the properties are not satisfiable
 	- TODO need to show the reverse implication
 - any strategy that is not a threshold strategy can swap predictions at $(i, j)$, where $p_{i} < T_{p} \leq p_{j}$ and $\hat{y}_{i} = 1, \hat{y}_{j} = 0$
-- -> as shown in [[#increase F-score via prediction swap|the swap-increase property]], such a swap *must* increase the F-score
+- -> as shown in [[#increase F-score via prediction swap|the swap-increase property]], such a swap *must* increase (the expected value of) the F-score
 - => the non-threshold strategy is NOT optimal
 - => any optimal strategy MUST be a threshold strategy
+
+# change in F-score from change in threshold
+
+> suppose we have some F-score over predictions that implement a threshold strategy. if we decrease the threshold (s.t. only one point changes), how does the expected F-score change?
+
+(same setup) given:
+- a sequence of points $\{\underline{x}_{i}\}$
+- a partition for which we predict positively and negatively:
+	- $\hat{S}_{0} = \{i \mid \hat{y}_{i} = 0\}$
+	- $\hat{S}_{1} = \{i \mid \hat{y}_{i} = 1\}$
+	- $\hat{S}_{0} \cup \hat{S}_{1} = \{1, \dots, n\}$
+	- (additionally) some threshold $T_{p}$ s.t.:
+		$$
+		\begin{align}
+		p_{i} < T_{p}
+			&& \forall i \in \hat{S}_{0}
+			\\
+		p_{i} \geq T_{p}
+			&& \forall i \in \hat{S}_{1}
+			\\
+		\end{align}
+		$$
+- some UNKNOWN prediction measures $\text{TP}, \text{FP}, \text{FN}$, given our prediction partition stated above
+	- specifically, we don't know the actual response values $\{y_{i}\}_{i = 1}^{n}$
+- some probability of each response value being positive $p_{i} := \Pr (y_{i} = 1)$
+
+suppose we decrease the threshold s.t. we change the prediction from negative to positive of exactly one data point $i$:
+$$
+\begin{align}
+T_{p}' &= \max_{i \in \hat{S}_{0}} (p_{i}) < T_{p} \\
+\hat{y}_{i} &= 0 \\
+\hat{y}_{i}' &= 1 \\
+\hat{y}_{j} &= \hat{y}_{j}' && \forall j \neq i
+\end{align}
+$$
+
+-> our new prediction measures are then:
+
+$$
+\begin{align}
+\text{TP}'
+	&= \text{TP}
+		\cancel{- \mathbb{1} \left\{y_{i} = 1, \hat{y}_{i} = 1\right\}}
+		+ \mathbb{1} \left\{y_{i} = 1, \cancel{\hat{y}_{i}' = 1}\right\}
+		\\
+	&= \text{TP}
+		+ \mathbb{1} \left\{y_{i} = 1\right\}
+		\\
+	\\
+	&= \left\{\begin{array}{ll}
+			\text{TP} & y_{i} = 0 \\
+			\text{TP} + 1 & y_{i} = 1 \\
+		\end{array}\right.
+		\\
+\\
+\text{FP}'
+	&= \text{FP}
+		\cancel{- \mathbb{1} \left\{y_{i} = 0, \hat{y}_{i} = 1\right\}}
+		+ \mathbb{1} \left\{y_{i} = 0, \cancel{\hat{y}_{i}' = 1}\right\}
+		\\
+	&= \text{FP}
+		+ \mathbb{1} \left\{y_{i} = 0\right\}
+		\\
+	\\
+	&= \left\{\begin{array}{ll}
+			\text{FP} + 1 & y_{i} = 0 \\
+			\text{FP} & y_{i} = 1 \\
+		\end{array}\right.
+		\\
+\\
+\text{FN}'
+	&= \text{FN}
+		- \mathbb{1} \left\{y_{i} = 1, \cancel{\hat{y}_{i} = 0}\right\}
+		\cancel{+ \mathbb{1} \left\{y_{i} = 1, \hat{y}_{i}' = 0\right\}}
+		\\
+	&= \text{FN}
+		- \mathbb{1} \left\{y_{i} = 1\right\}
+		\\
+	\\
+	&= \left\{\begin{array}{ll}
+			\text{FN} & y_{i} = 0 \\
+			\text{FN} - 1 & y_{i} = 1 \\
+		\end{array}\right.
+		\\
+\end{align}
+$$
+
+-> the expected new F-score would then be:
+
+$$
+\begin{align}
+E \left[F_{1}'\right]
+	&= E \left[\frac{2 \text{TP}'}{2 \text{TP}' + \text{FP}' + \text{FN}'}\right] \\
+	&= \sum_{y_{i} \in \{0, 1\}} \Pr(y_{i}, y_{j})
+		\cdot \left(\frac
+			{2 \text{TP}'}
+			{2 \text{TP}' + \text{FP}' + \text{FN}'}
+			\mid y_{i}
+			\right)
+		\\
+	&= \Pr(y_{i} = 0)
+			\cdot \left(
+				\frac{2 \text{TP}'}{2 \text{TP}' + \text{FP}' + \text{FN}'}
+				\mid y_{i} = 0
+				\right)
+			\\
+		&\hspace{1cm} + \Pr(y_{i} = 1)
+			\cdot \left(
+				\frac{2 \text{TP}'}{2 \text{TP}' + \text{FP}' + \text{FN}'}
+				\mid y_{i} = 1
+				\right)
+			\\
+		\\
+	&= (1 - p_{i})
+			\cdot \left(
+				\frac{2 (\text{TP})}{2 (\text{TP}) + (\text{FP} + 1) + (\text{FN})}
+			\right)
+			\\
+		&\hspace{1cm} + (p_{i})
+			\cdot \left(
+				\frac{2 (\text{TP} + 1)}{2 (\text{TP} + 1) + (\text{FP}) + (\text{FN} - 1)}
+			\right)
+			\\
+		\\
+	&= (1 \cancel{- p_{i}}) \left(
+				\frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN} + 1}
+			\right)
+			\\
+		&\hspace{1cm} \cancel{+ p_{i} \left(
+				\frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN} + 1}
+			\right)}
+			\\
+		&\hspace{1cm} + p_{i} \left(
+				\frac{2}{2 \text{TP} + \text{FP} + \text{FN} + 1}
+			\right)
+			\\
+		\\
+	&= \frac
+		{2 (\text{TP} + p_{i})}
+		{2 \text{TP} + \text{FP} + \text{FN} + 1}
+		\\
+\end{align}
+$$
+
+-> compared to the old F-score:
+
+$$
+\begin{align}
+&&E [F_{1}] &\lessgtr E \left[F_{1}'\right] \\
+\iff &&\frac
+	{2 \text{TP}}
+	{2 \text{TP} + \text{FP} + \text{FN}}
+	&\lessgtr \frac
+		{2 (\text{TP} + p_{i})}
+		{2 \text{TP} + \text{FP} + \text{FN} + 1}
+	\\
+\iff &&
+	2 \text{TP} (\cancel{2 \text{TP} + \text{FP} + \text{FN}} + 1)
+	&\lessgtr 2 (\cancel {\text{TP}} + p_{i}) (2 \text{TP} + \text{FP} + \text{FN})
+	&& \text{denominators $> 0$}
+	\\
+\iff &&
+	2 \text{TP}
+	&\lessgtr 2 p_{i} (2 \text{TP} + \text{FP} + \text{FN})
+	\\
+\iff &&
+	\frac{1}{2} F_{1} =
+	\frac{\text{TP}}{2 \text{TP} + \text{FP} + \text{FN}}
+	&\lessgtr p_{i}
+	&& \text{denominator $> 0$}
+	\\
+\end{align}
+$$
+
+thus:
+
+$$
+\to \boxed{
+	p_{i} > \frac{1}{2} F_{1}
+	\implies E \left[F_{1}'\right] > E [F_{1}]
+}
+$$
+
+where $F_{1}'$ is the $F_{1}$-score after switching predictions
+
+specifically, we have shown that lowering the positive prediction threshold $T_{p}$ will increase the F-score iff those points included by the new, lower threshold are more than half of the current F-score.
+
+more generally, applying this repeatedly yields that **the optimal threshold is half the optimal F-score**.
