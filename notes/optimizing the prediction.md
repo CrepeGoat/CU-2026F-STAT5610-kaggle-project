@@ -34,6 +34,35 @@ y_{i} \mid \underline{x}_{i}
 	\sim \text{Bernoulli}(p)
 $$
 
+## computing $F_{1}$
+
+given:
+- a sequence of points $\{\underline{x}_{i}\}$
+- a partition for which we predict positively and negatively:
+	- $\hat{S}_{0} = \{i \mid \hat{y}_{i} = 0\}$
+	- $\hat{S}_{1} = \{i \mid \hat{y}_{i} = 1\}$
+	- $\hat{S}_{0} \cup \hat{S}_{1} = \{1, \dots, n\}$
+- a partition for which the response is positive and negative:
+	- $S_{0} = \{i \mid y_{i} = 0\}$
+	- $S_{1} = \{i \mid y_{i} = 1\}$
+	- $S_{0} \cup S_{1} = \{1, \dots, n\}$
+
+-> then the $F_{1}$-score is computed as:
+$$
+\begin{align}
+F_{1}
+	&= \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
+	&= \frac
+		{2 \cdot \left|S_{1} \cap \hat{S}_{1}\right|}
+		{
+			2 \cdot \left|S_{1} \cap \hat{S}_{1}\right|
+			+ \left|S_{0} \cap \hat{S}_{1}\right|
+			+ \left|S_{1} \cap \hat{S}_{0}\right|
+		}
+		\\
+\end{align}
+$$
+
 # simple case - optimize for a given $p$
 
 suppose that we have:
@@ -53,17 +82,17 @@ suppose that we have:
 	$$
 	\begin{align}
 	\lim_{n \to \infty} \left(F_{1} \mid \hat{y}_{i} = 1\right)
-		&= \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
-		&= \frac
+		&= \lim_{n \to \infty} \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
+		&= \lim_{n \to \infty} \frac
 			{2 (n p)}
 			{2 (n p) + (n (1 - p)) + (0)}
 			& \text{def. of probability}
 			\\
-		&= \frac
+		&= \lim_{n \to \infty} \frac
 			{2 n p}
 			{n p + \cancel{n p} + n (1 \cancel{- p})}
 			\\
-		&= \frac
+		&= \lim_{n \to \infty} \frac
 			{2 \cancel{n} p}
 			{\cancel{n} (1 + p)}
 			\\
@@ -74,19 +103,20 @@ suppose that we have:
 	<iframe src="https://www.desmos.com/calculator/pvt3c2gzai?embed" width="400" height="400" style="border: 1px solid #ccc" frameborder=0></iframe>
 
 3. randomly choose at some rate $r$ - $\hat{y}_{i} \sim \text{Bernoulli}(r)$:
+	(note that, since the probability $p$ is the same for each set of inputs $\underline{x}_{i}$, there is no effective difference among the points; thus choosing some percentage of the points for which to predict a positive $\hat{y}_{i} = 1 \ \forall i \in S_{1} \subseteq \{1, \dots, n\}$, is no different than choosing these points $S_{1}$ at random)
 	$$
 	\begin{align}
 	&\lim_{n \to \infty} \left(F_{1} \mid \hat{y}_{i} \sim \text{Bernoulli} (r)\right) \\
-		&= \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
-		&= \frac
+		&= \lim_{n \to \infty} \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
+		&= \lim_{n \to \infty} \frac
 			{2 (n p r)}
 			{2 (n p r) + (n (1 - p) r) + (n p (1 - r))}
 			\\
-		&= \frac
+		&= \lim_{n \to \infty} \frac
 			{2 n p r}
 			{\cancel{2 n p r} + n r \cancel{- n p r} + n p \cancel{- n p r}}
 			\\
-		&= \frac{2 \cancel{n} p r}{\cancel{n} (r + p)} \\
+		&= \lim_{n \to \infty} \frac{2 \cancel{n} p r}{\cancel{n} (r + p)} \\
 		&= \frac{2 p r}{r + p} \\
 	\end{align}
 	$$
@@ -119,7 +149,7 @@ suppose that we have:
 
 > Why did we take the long-run value $\lim_{n \to \infty} (\dots)$ instead of just taking the expected value $E [\dots]$?
 
-The expected value has a lot of nice properties:
+the expected value has a lot of nice properties:
 
 $$
 \begin{align}
@@ -131,7 +161,7 @@ $$
 \end{align}
 $$
 
-However, there is *no* such property for division or inversion:
+however, there is *no* such property for division or inversion:
 
 $$
 \exists X, Y \text{ independent s.t. }
@@ -141,7 +171,7 @@ $$
 
 the only way to compute the expected value in this case would be to work from the integral definition. while possible, this is too intensive for just a conceptual understanding via "napkin-math".
 
-Conversely, taking the long-run result, which here is just some function of a set of averages (i.e., TP, FP, FN) allows us to do simpler math via convergence in probabilities:
+conversely, taking the long-run result, which here is just some function of a set of averages (i.e., TP, FP, FN), allows us to do simpler math via convergence in probabilities:
 
 $$
 f \left(\bar{X}, \bar{Y}\right)
