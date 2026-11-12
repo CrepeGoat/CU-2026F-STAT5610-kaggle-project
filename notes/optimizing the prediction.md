@@ -447,7 +447,41 @@ proof outline:
 		- to satisfy property 2, the threshold value must be *increased* s.t. $T_{p} \geq p_{j}$
 	- -> the threshold cannot be both increased and decreased
 	- => the properties are not satisfiable
-	- TODO need to show the reverse implication
+	- the reverse implication - if not a threshold strategy, then there is a negatively-predicted point $j$ with a higher (or equal) positive response probability than a positively-predicted point $i$
+		- to be a non-thresholding strategy, then for all $T$ one of the conditions must fail
+			- the 1st condition fails for all thresholds above the lowest PRP of NP-points $\min_{j \in \hat{S}_{1}} p_{j} \leq T$
+			- the 2nd condition fails for all thresholds below the highest NRP of PP-points $T < \max_{i \in \hat{S}_{0}} p_{i}$
+		1. for all $T$ to fail, these two failure conditions must cover the whole probability space $[0, 1]$:
+			$$
+			\begin{align}
+			T &\in
+				\left[\min_{j \in \hat{S}_{1}} p_{j}, 1\right]
+				\cap \left[0, \max_{i \in \hat{S}_{0}} p_{i}\right)
+				\\
+			\to \min_{j \in \hat{S}_{1}} p_{j} &\leq \max_{i \in \hat{S}_{0}} p_{i} \\
+			\end{align}
+			$$
+		1. note also the two prediction sets are mutually exclusive $\hat{S}_{0} \cap \hat{S}_{1} = \varnothing$
+		- -> from 1. and 2., there must be two distinct points $i, j$ s.t.:
+			$$
+			\begin{align}
+			i \in \hat{S}_{0} \implies& \hat{y}_{i} = 0 \\
+			j \in \hat{S}_{1} \implies& \hat{y}_{j} = 1 \\
+			\\
+			p_{i} &\geq p_{j} \\
+			i &\neq j \\
+			\end{align}
+			$$
+	- lastly, we also assume that all points $i, j$ have unique predictions $p_{i} \neq p_{j}$ (which should be reasonable for any model incorporating non-categorical predictors):
+		$$
+		\exists i \neq j \text{ s.t. }
+			\left\{\begin{array}{ll}
+				\hat{y}_{i} = 0 \\
+				\hat{y}_{j} = 1 \\
+				p_{i} > p_{j} \\
+			\end{array}\right.
+		$$
+
 - any strategy that is not a threshold strategy can swap predictions at $(i, j)$, where $p_{i} < T_{p} \leq p_{j}$ and $\hat{y}_{i} = 1, \hat{y}_{j} = 0$
 - -> as shown in [[#increase F-score via prediction swap|the swap-increase property]], such a swap *must* increase (the expected value of) the F-score
 - => the non-threshold strategy is NOT optimal
