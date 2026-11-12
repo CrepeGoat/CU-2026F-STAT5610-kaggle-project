@@ -178,3 +178,220 @@ f \left(\bar{X}, \bar{Y}\right)
 	\stackrel{p}{\longrightarrow}
 	f \left(\mu_{X}, \mu_{Y}\right)
 $$
+
+
+# more complex case - points w/ variable $p_i$
+
+given:
+- a sequence of points $\{\underline{x}_{i}\}$
+- a probability distribution for the probability of a positive response for a given data point:
+	$$
+	p_{i} := \Pr (y_{i} = 1)
+	$$
+	where $\{p_{i}\}_{i = 1}^{n}$ are i.i.d.
+- we always predict a positive response $\hat{y}_{i} = 1$
+
+-> then the long-run $F_{1}$-score is:
+
+$$
+\begin{align}
+\lim_{n \to \infty} F_{1}
+	&= \lim_{n \to \infty} \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
+	&= \lim_{n \to \infty} \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
+\end{align}
+$$
+
+
+TODO
+
+## $\{\hat{y}_{i} = 0, \hat{y}_{j} = 1\} \to \{\hat{y}_{i} = 1, \hat{y}_{j} = 0\}$
+
+
+> suppose we have some $F_{1}$ for which $\hat{y}_{i} = 0, \hat{y}_{j} = 1$ and for some $p_{i}, p_{j}$. what is the effect on $F_{1}$ of swapping these two predictions s.t. $\hat{y}_{i} = 1, \hat{y}_{j} = 0$?
+
+given:
+- a sequence of points $\{\underline{x}_{i}\}$
+- a partition for which we predict positively and negatively:
+	- $\hat{S}_{0} = \{i \mid \hat{y}_{i} = 0\}$
+	- $\hat{S}_{1} = \{i \mid \hat{y}_{i} = 1\}$
+	- $\hat{S}_{0} \cup \hat{S}_{1} = \{1, \dots, n\}$
+- some UNKNOWN prediction measures $\text{TP}, \text{FP}, \text{FN}$, given our prediction partition stated above
+	- specifically, we don't know the actual response values $\{y_{i}\}_{i = 1}^{n}$
+- some probability of each response value being positive $p_{i} := \Pr (y_{i} = 1)$
+
+now suppose we switch the predictions for two points at indices $i, j$
+- assume our predictions are opposing; i.e. $\hat{y}_{i} = 0 \neq 1 = \hat{y}_{j}$
+- -> switching predictions yields $\hat{y}_{i}' = 1 \neq 0 = \hat{y}_{j}'$
+
+-> our new prediction measures are then:
+
+$$
+\begin{align}
+\text{TP}'
+	&= \text{TP} \\
+		&\hspace{1cm} \cancel{- \mathbb{1} \left\{y_{i} = 1, \hat{y}_{i} = 1\right\}} \\
+		&\hspace{1cm} - \mathbb{1} \left\{y_{j} = 1, \cancel{\hat{y}_{j} = 1}\right\} \\
+		&\hspace{1cm} + \mathbb{1} \left\{y_{i} = 1, \cancel{\hat{y}_{i}' = 1}\right\} \\
+		&\hspace{1cm} \cancel{+ \mathbb{1} \left\{y_{j} = 1, \hat{y}_{j}' = 1\right\}} \\
+	&= \text{TP}
+		- \mathbb{1} \left\{y_{j} = 1\right\}
+		+ \mathbb{1} \left\{y_{i} = 1\right\}
+		\\
+	\\
+	&= \left\{\begin{array}{ll}
+			\text{TP} & y_{i} = y_{j} \\
+			\text{TP} - 1 & y_{i} = 0, y_{j} = 1 \\
+			\text{TP} + 1 & y_{i} = 1, y_{j} = 0 \\
+		\end{array}\right.
+		\\
+\\
+\text{FP}'
+	&= \text{FP} \\
+		&\hspace{1cm} \cancel{- \mathbb{1} \left\{y_{i} = 0, \hat{y}_{i} = 1\right\}} \\
+		&\hspace{1cm} - \mathbb{1} \left\{y_{j} = 0, \cancel{\hat{y}_{j} = 1}\right\} \\
+		&\hspace{1cm} + \mathbb{1} \left\{y_{i} = 0, \cancel{\hat{y}_{i}' = 1}\right\} \\
+		&\hspace{1cm} \cancel{+ \mathbb{1} \left\{y_{j} = 0, \hat{y}_{j}' = 1\right\}} \\
+	&= \text{FP}
+		- \mathbb{1} \left\{y_{j} = 0\right\}
+		+ \mathbb{1} \left\{y_{i} = 0\right\}
+		\\
+	\\
+	&= \left\{\begin{array}{ll}
+			\text{FP} & y_{i} = y_{j} \\
+			\text{FP} + 1 & y_{i} = 0, y_{j} = 1 \\
+			\text{FP} - 1 & y_{i} = 1, y_{j} = 0 \\
+		\end{array}\right.
+		\\
+\\
+\text{FN}'
+	&= \text{FN} \\
+		&\hspace{1cm} - \mathbb{1} \left\{y_{i} = 1, \cancel{\hat{y}_{i} = 0}\right\} \\
+		&\hspace{1cm} \cancel{- \mathbb{1} \left\{y_{j} = 1, \hat{y}_{j} = 0\right\}} \\
+		&\hspace{1cm} \cancel{+ \mathbb{1} \left\{y_{i} = 1, \hat{y}_{i}' = 0\right\}} \\
+		&\hspace{1cm} + \mathbb{1} \left\{y_{j} = 1, \cancel{\hat{y}_{j}' = 0}\right\} \\
+	&= \text{FN}
+		- \mathbb{1} \left\{y_{i} = 1\right\}
+		+ \mathbb{1} \left\{y_{j} = 1\right\}
+		\\
+	\\
+	&= \left\{\begin{array}{ll}
+			\text{FN} & y_{i} = y_{j} \\
+			\text{FN} + 1 & y_{i} = 0, y_{j} = 1 \\
+			\text{FN} - 1 & y_{i} = 1, y_{j} = 0 \\
+		\end{array}\right.
+		\\
+\end{align}
+$$
+
+
+-> the expectation of our new score $F_{1}'$ would then be:
+
+$$
+\begin{align}
+E \left[F_{1}'\right]
+	&= E \left[\frac{2 \text{TP}'}{2 \text{TP}' + \text{FP}' + \text{FN}'}\right] \\
+	&= \sum_{y_{i}, y_{j} \in \{0, 1\}} \Pr(y_{i}, y_{j})
+		\cdot \left(\frac
+			{2 \text{TP}'}
+			{2 \text{TP}' + \text{FP}' + \text{FN}'}
+			\mid y_{i}, y_{j}
+			\right)
+		\\
+	&=
+		\Pr(y_{i} = 0, y_{j} = 0)
+			\cdot \left(
+				\frac{2 \text{TP}'}{2 \text{TP}' + \text{FP}' + \text{FN}'}
+				\mid y_{i} = 0, y_{j} = 0
+				\right)
+			\\
+		&\hspace{1cm} + \Pr(y_{i} = 0, y_{j} = 1)
+			\cdot \left(
+				\frac{2 \text{TP}'}{2 \text{TP}' + \text{FP}' + \text{FN}'}
+				\mid y_{i} = 0, y_{j} = 1
+				\right)
+			\\
+		&\hspace{1cm} + \Pr(y_{i} = 1, y_{j} = 0)
+			\cdot \left(
+				\frac{2 \text{TP}'}{2 \text{TP}' + \text{FP}' + \text{FN}'}
+				\mid y_{i} = 1, y_{j} = 0
+				\right)
+			\\
+		&\hspace{1cm} + \Pr(y_{i} = 1, y_{j} = 1)
+			\cdot \left(
+				\frac{2 \text{TP}'}{2 \text{TP}' + \text{FP}' + \text{FN}'}
+				\mid y_{i} = 1, y_{j} = 1
+			\right)
+			\\
+		\\
+	&=
+		(1 - p_{i}) (1 - p_{j})
+			\cdot \left(\frac
+				{2 (\text{TP})}
+				{2 (\text{TP}) + (\text{FP}) + (\text{FN})}
+			\right)
+			\\
+		&\hspace{1cm} + (1 - p_{i}) (p_{j})
+			\cdot \left(\frac
+				{2 (\text{TP} - 1)}
+				{2 (\text{TP} \cancel{- 1}) + (\text{FP} \cancel{+ 1}) + (\text{FN} \cancel{+ 1})}
+			\right)
+			\\
+		&\hspace{1cm} + (p_{i}) (1 - p_{j})
+			\cdot \left(\frac
+				{2 (\text{TP} + 1)}
+				{2 (\text{TP} \cancel{+ 1}) + (\text{FP} \cancel{- 1}) + (\text{FN} \cancel{- 1})}
+			\right)
+			\\
+		&\hspace{1cm} + (p_{i}) (p_{j})
+			\cdot \left(\frac
+				{2 (\text{TP})}
+				{2 (\text{TP}) + (\text{FP}) + (\text{FN})}
+			\right)
+			\\
+		\\
+	&=
+		(1 - p_{i} - p_{j})
+			\cdot \left(\frac
+				{2 \text{TP}}
+				{2 \text{TP} + \text{FP} + \text{FN}}
+			\right)
+			\\
+		&\hspace{1cm} + (1 - p_{i}) (p_{j})
+			\cdot \left(\frac
+				{2 \text{TP} - 2}
+				{2 \text{TP} + \text{FP} + \text{FN}}
+			\right)
+			\\
+		&\hspace{1cm} + (p_{i}) (1 - p_{j})
+			\cdot \left(\frac
+				{2 \text{TP} + 2}
+				{2 \text{TP} + \text{FP} + \text{FN}}
+				\right)
+			\\
+		\\
+	&= \frac{2 \left(
+			(1 - p_{i} - p_{j}) (\text{TP})
+			+ (p_{j} - p_{i} p_{j}) (\text{TP} - 1)
+			+ (p_{i} - p_{i} p_{j}) (\text{TP} + 1)
+		\right)}
+		{2 \text{TP} + \text{FP} + \text{FN}}
+		\\
+	&= \frac{2 \left(
+			\text{TP}
+			+ p_{i} (\cancel{-\text{TP} + \text{TP}} + 1)
+			+ p_{j} (\cancel{-\text{TP} + \text{TP}} - 1)
+			- p_{i} p_{j} (\text{TP} \cancel{- 1} + \text{TP} \cancel{+ 1})
+		\right)}
+		{2 \text{TP} + \text{FP} + \text{FN}}
+		\\
+	&= \frac{2 \left(
+			\text{TP} (1 - 2 p_{i} p_{j}) + p_{i} - p_{j}
+		\right)}
+		{2 \text{TP} + \text{FP} + \text{FN}}
+		\\
+\end{align}
+$$
+
+
+TODO
+
