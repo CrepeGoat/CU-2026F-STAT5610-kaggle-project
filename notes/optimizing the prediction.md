@@ -679,3 +679,157 @@ where $F _{1}'$ is the F-score after switching predictions
 we have shown that converting a negative prediction to a positive prediction will increase the F-score iff that point's positive response probability is more than half of the current F-score.
 
 more generally, applying this repeatedly yields that **the optimal threshold is half the optimal F-score**.
+
+# optimal long-run threshold as a function of CDF
+
+> suppose we have a cumulative distribution function (c.d.f.) $F$ that describes the long-run distribution of any given point's positive response probability:
+> 
+> $$
+F(p)
+	:= \Pr \left(\Pr \left(y_{i} = 1 \mid \underline{x}_{i}\right) < p \right)
+$$
+> 
+> what is the optimal threshold for maximizing the long-run F-score for this prediction model?
+
+given:
+- a sequence of points $\lbrace \underline{x}_{i}\rbrace _{i = 1}^{n}$
+- some probability of each response value being positive $p_{i} := \Pr (y_{i} = 1)$
+- a c.d.f. characterizing the long-run distribution of positive response probabilities:
+
+$$
+F(p)
+	:= \Pr \left(\Pr \left(y_{i} = 1 \mid \underline{x}_{i}\right) < p \right)
+$$
+
+- a threshold $T _{p}$ on the positive response probabilities $p _{i}$ that dictates the response prediction, s.t.:
+
+$$
+\hat{y} _{i} = \mathbb{1} \lbrace p _{i} \geq T _{p}\rbrace
+$$
+
+the long-run prediction measures are then:
+
+$$
+\begin{align}
+\lim _{n \to \infty} \text{TP}
+	&= \lim _{n \to \infty} \left(\frac
+		{|\lbrace i \mid y _{i} = 1, \hat{y} _{i} = 1\rbrace|}
+		{|\lbrace i \mid \hat{y} _{i} = 1\rbrace|}
+		\right)
+		\\
+	&= \lim _{n \to \infty} \frac
+		{\cancel{n} \Pr \left(y _{i} = 1, \hat{y} _{i} = 1\right)}
+		{\cancel{n} \Pr \left(\hat{y} _{i} = 1\right)}
+		\\
+	&= \Pr \left(y _{i} = 1 \mid \hat{y} _{i} = 1\right) \\
+	&= E \left[p _{i} \mid p _{i} \geq T _{p}\right] \\
+	&= \int _{T _{p}}^{1} p \ \frac{f (p)}{1 - F(T _{p})} \ dp \\
+	&= \frac{1}{1 - F(T _{p})} \int _{T _{p}}^{1} p \ f (p) \ dp \\
+\\
+\lim _{n \to \infty} \text{FP}
+	&= \lim _{n \to \infty} \left(\frac
+		{|\lbrace i \mid y _{i} = 0, \hat{y} _{i} = 1\rbrace|}
+		{|\lbrace i \mid \hat{y} _{i} = 1\rbrace|}
+		\right)
+		\\
+	&= \lim _{n \to \infty} \frac
+		{\cancel{n} \Pr \left(y _{i} = 0, \hat{y} _{i} = 1\right)}
+		{\cancel{n} \Pr \left(\hat{y} _{i} = 1\right)}
+		\\
+	&= \Pr \left(y _{i} = 0 \mid \hat{y} _{i} = 1\right) \\
+	&= E \left[(1 - p _{i}) \mid p _{i} \geq T _{p}\right] \\
+	&= 1 - E \left[p _{i} \mid p _{i} \geq T _{p}\right] \\
+	&= 1 - \frac{1}{1 - F(T _{p})} \int _{T _{p}}^{1} p \ f (p) \ dp \\
+\\
+\lim _{n \to \infty} \text{FN}
+	&= \lim _{n \to \infty} \left(\frac
+		{|\lbrace i \mid y _{i} = 1, \hat{y} _{i} = 0\rbrace|}
+		{|\lbrace i \mid \hat{y} _{i} = 0\rbrace|}
+		\right)
+		\\
+	&= \lim _{n \to \infty} \frac
+		{\cancel{n} \Pr \left(y _{i} = 1, \hat{y} _{i} = 0\right)}
+		{\cancel{n} \Pr \left(\hat{y} _{i} = 0\right)}
+		\\
+	&= \Pr \left(y _{i} = 1 \mid \hat{y} _{i} = 0\right) \\
+	&= E \left[p _{i} \mid p _{i} < T _{p}\right] \\
+	&= \int _{0}^{T _{p}} p \ \frac{f (p)}{F(T _{p})} \ dp \\
+	&= \frac{1}{F(T _{p})} \int _0^{T _{p}} p \ f (p) \ dp \\
+\\
+\end{align}
+$$
+
+
+the long-run F-score is then:
+
+$$
+\begin{align}
+\lim _{n \to \infty} F _{1}
+	&= \lim_{n \to \infty} \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
+	&= \frac
+		{2 \left(\frac{1}{1 - F(T _{p})} \int _{T _{p}}^{1} p \ f (p) \ dp\right)}
+		{
+			\cancel{2} \left(\frac{1}{1 - F(T _{p})} \int _{T _{p}}^{1} p \ f (p) \ dp\right)
+			+ \left(1 \cancel{- \frac{1}{1 - F(T _{p})} \int _{T _{p}}^{1} p \ f (p) \ dp}\right)
+			+ \left(\frac{1}{F(T _{p})} \int _0^{T _{p}} p \ f (p) \ dp\right)
+		}
+		\\
+	&= \frac
+		{2 F(T _{p})\int _{T _{p}}^{1} p \ f (p) \ dp}
+		{
+			F(T _{p}) (1 - F(T _{p})) + F(T _{p}) \int _{T _{p}}^{1} p \ f (p) \ dp
+			+ (1 - F(T _{p})) \int _0^{T _{p}} p \ f (p) \ dp
+		}
+		\\
+\end{align}
+$$
+
+the maximum of the long-run F-score will occur at an inflection point
+
+-> calculate intermediate derivatives:
+
+$$
+\begin{align}
+\frac{d}{d T _{p}} \left(F(T _{p}) (1 - F(T _{p}))\right)
+	&= f(T _{p}) (1 - F(T _{p})) - F(T _{p}) f(T _{p}) \\
+	&= f(T _{p}) (1 - 2 F(T _{p})) \\
+\\
+\frac{d}{d T _{p}} \left(F(T _{p}) \int _{T _{p}}^{1} p \ f (p) \ dp\right)
+	&= f(T _{p}) \int _{T _{p}}^{1} p \ f (p) \ dp
+		- T _{p} \ f (T _{p}) F(T _{p})
+		\\
+	&= f(T _{p}) \left(
+			\int _{T _{p}}^{1} p \ f (p) \ dp
+			- T _{p} \ F(T _{p})
+		\right)
+		\\
+\\
+\frac{d}{d T _{p}} \left((1 - F(T _{p})) \int _0^{T _{p}} p \ f (p) \ dp\right)
+	&= T _{p} \ f (T _{p}) \ (1 - F(T _{p}))
+		- f(T _{p}) \int _0^{T _{p}} p \ f (p) \ dp
+		\\
+	&= f (T _{p}) \left(
+		T _{p} \ (1 - F(T _{p}))
+		- \int _0^{T _{p}} p \ f (p) \ dp
+		\right)
+		\\
+\end{align}
+$$
+
+-> calculate the derivative w.r.t. $T _{p}$ and set it to zero:
+
+$$
+\begin{align}
+0 = \frac{d}{d T _{p}} \lim _{n \to \infty} F _{1}
+	&= \frac{d}{d T _{p}} \left(\frac
+		{2 F(T _{p})\int _{T _{p}}^{1} p \ f (p) \ dp}
+		{
+			F(T _{p}) (1 - F(T _{p}))
+			+ F(T _{p}) \int _{T _{p}}^{1} p \ f (p) \ dp
+			+ (1 - F(T _{p})) \int _0^{T _{p}} p \ f (p) \ dp
+		}
+		\right)
+		\\
+	&= \text{TODO}
+\end{align}
+$$
