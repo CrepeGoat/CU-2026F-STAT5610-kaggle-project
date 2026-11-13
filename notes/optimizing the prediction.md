@@ -194,7 +194,7 @@ $$
 
 # increase F-score via prediction swap
 
-> suppose we have some $F _{1}$ for which $\hat{y} _{i} = 0, \hat{y} _{j} = 1$ and for some $p _{i}, p _{j}$. what is the effect on $F _{1}$ of swapping these two predictions s.t. $\hat{y} _{i} = 1, \hat{y} _{j} = 0$?
+> suppose we have some $F _{1}$ for which $\hat{y} _{i} = 0, \hat{y} _{j} = 1$ and for some $p _{i}, p _{j}$. what is the effect on $F _{1}$ of swapping these two predictions s.t. $\hat{y} _{i}' = 1, \hat{y} _{j}' = 0$?
 
 given:
 - a sequence of points $\lbrace \underline{x}_{i}\rbrace$
@@ -393,13 +393,13 @@ $$
 	\\
 \iff &&2 \text{TP}
 	&\lessgtr 2 \left(\text{TP} + p_{i} - p_{j}\right)
-	& 2 \text{TP} + \text{FP} + \text{FN} > 0
+	&& 2 \text{TP} + \text{FP} + \text{FN} > 0
 	\\
 \iff &&0
 	&\lessgtr 2 \left(p_{i} - p_{j}\right)
 	\\
 \iff &&p_{j} &\lessgtr p_{i}
-	& 2 > 0
+	&& 2 > 0
 	\\
 \end{align}
 $$
@@ -417,13 +417,17 @@ $$
 where $F _{1}'$ is the F-score after switching predictions
 
 
-specifically, we have shown that **we can increase the expectation of the F-score by switching predictions**, s.t.:
-- a point $i$ with a higher positive-response probability $p _{i}$ is assigned a positive response $\cancel{\hat{y} _{i} = 0} \to \hat{y} _{i} = 1$
-- a point $j$ with a lower positive-response probability $p _{j} < p _{i}$ is assigned a negative response $\cancel{\hat{y} _{j} = 1} \to  \hat{y} _{j} = 0$
+specifically, we have shown that **we can increase the expectation of the F-score by switching predictions**:
+- a point $i$ with a higher positive-response probability $p _{i}$ is reassigned a positive response $\cancel{\hat{y} _{i} = 0} \to \hat{y} _{i} = 1$
+- a point $j$ with a lower positive-response probability $p _{j} < p _{i}$ is reassigned a negative response $\cancel{\hat{y} _{j} = 1} \to  \hat{y} _{j} = 0$
 
 ## implication - thresholds are optimal
 
-given [[#increase F-score via prediction swap|the swap result]], we can show that **any optimal strategy can be described as some threshold on the positive response probabilities $\lbrace p _{i}\rbrace_{i = 1}^{n}$**
+given [[#increase F-score via prediction swap|the swap result]], we can show that **any optimal strategy can be described as some threshold on the positive response probabilities:**
+
+$$
+\hat{y} _{i} = \mathbb{1} \lbrace p _{i} \geq T _{p}\rbrace
+$$
 
 proof outline:
 - start with [[#def - threshold strategy|the definition of a threshold strategy]]
@@ -445,6 +449,12 @@ proof outline:
 a strategy for "thresholding" involves predictions $\lbrace \hat{y} _{i}\rbrace _{i = 1}^{n}$ s.t., for some threshold value $T_{p}$:
 1. any point $i$ with a probability below the threshold $p_{i} < T_{p}$ gets a negative prediction $\hat{y} _{i} = 0$
 2. any point $i$ with a probability above (or equal to) the threshold $p_{i} \geq T_{p}$ gets a positive prediction $\hat{y} _{i} = 1$
+
+in short:
+
+$$
+\hat{y} _{i} = \mathbb{1} \lbrace p _{i} \geq T _{p}\rbrace
+$$
 
 ### lemma - non-threshold strategy
 
@@ -494,7 +504,7 @@ $$
 
 > suppose we have some F-score over predictions. if we change our prediction $\hat{y} _{i} = 0 \to \hat{y} _{i}' = 1$ for one point $i$, how does the expected F-score change?
 
-(similar setup) given:
+(same setup) given:
 - a sequence of points $\lbrace \underline{x}_{i}\rbrace$
 - a partition for which we predict positively and negatively:
 	- $\hat{S} _{0} = \lbrace i \mid \hat{y} _{i} = 0\rbrace$
