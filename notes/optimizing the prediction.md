@@ -504,6 +504,11 @@ $$
 
 > suppose we have some F-score over predictions. if we change our prediction $\hat{y} _{i} = 0 \to \hat{y} _{i}' = 1$ for one point $i$, how does the expected F-score change?
 
+TODO make $y _{i}$ completely random ->:
+- $\text{TP} \to \text{TP} + \mathbb{1} \lbrace y _{i} = 1, \hat{y} _{i} = 1\rbrace$
+- $\text{FP} \to \text{FP} + \mathbb{1} \lbrace y _{i} = 0, \hat{y} _{i} = 1\rbrace$
+- $\text{FN} \to \text{FN} + \mathbb{1} \lbrace y _{i} = 1, \hat{y} _{i} = 0\rbrace$
+
 (same setup) given:
 - a sequence of points $\lbrace \underline{x}_{i}\rbrace$
 - a partition for which we predict positively and negatively:
@@ -582,7 +587,7 @@ $$
 \begin{align}
 E \left[F_{1}'\right]
 	&= E \left[\frac{2 \text{TP}'}{2 \text{TP}' + \text{FP}' + \text{FN}'}\right] \\
-	&= \sum_{y_{i} \in \lbrace 0, 1\rbrace} \Pr(y_{i}, y_{j})
+	&= \sum_{y_{i} \in \lbrace 0, 1\rbrace} \Pr(y_{i})
 		\cdot \left(\frac
 			{2 \text{TP}'}
 			{2 \text{TP}' + \text{FP}' + \text{FN}'}
@@ -697,7 +702,7 @@ given:
 - a c.d.f. characterizing the long-run distribution of positive response probabilities:
 
 $$
-F(p)
+F _{P}(p)
 	:= \Pr \left(\Pr \left(y_{i} = 1 \mid \underline{x}_{i}\right) < p \right)
 $$
 
@@ -711,50 +716,50 @@ the long-run prediction measures are then:
 
 $$
 \begin{align}
-\lim _{n \to \infty} \text{TP}
-	&= \lim _{n \to \infty} \left(\frac
-		{|\lbrace i \mid y _{i} = 1, \hat{y} _{i} = 1\rbrace|}
-		{|\lbrace i \mid \hat{y} _{i} = 1\rbrace|}
-		\right)
+\lim _{n \to \infty} \text{TP} / n
+	&= \lim _{n \to \infty} (1 / n)
+		\left|\lbrace i \mid y _{i} = 1, \hat{y} _{i} = 1\rbrace \right|
 		\\
-	&= \lim _{n \to \infty} \frac
-		{\cancel{n} \Pr \left(y _{i} = 1, \hat{y} _{i} = 1\right)}
-		{\cancel{n} \Pr \left(\hat{y} _{i} = 1\right)}
+	&= \lim _{n \to \infty} \cancel{(1 / n) n} \Pr \left(y _{i} = 1, \hat{y} _{i} = 1\right) \\
+	&= \Pr \left(y _{i} = 1 \mid \hat{y} _{i} = 1\right)
+		\Pr \left(\hat{y} _{i} = 1\right)
 		\\
-	&= \Pr \left(y _{i} = 1 \mid \hat{y} _{i} = 1\right) \\
-	&= E \left[p _{i} \mid p _{i} \geq T _{p}\right] \\
-	&= \int _{T _{p}}^{1} p \ \frac{f (p)}{1 - F(T _{p})} \ dp \\
-	&= \frac{1}{1 - F(T _{p})} \int _{T _{p}}^{1} p \ f (p) \ dp \\
+	&= E \left[p _{i} \mid p _{i} \geq T _{p}\right] (1 - F _{P}(T _{p})) \\
+	&= \cancel{(1 - F _{P}(T _{p}))}
+		\int _{T _{p}}^{1} p \ \frac{f _{P} (p)}{\cancel{1 - F _{P}(T _{p})}} \ dp
+		\\
+	&= \int _{T _{p}}^{1} p \ f _{P} (p) \ dp \\
 \\
-\lim _{n \to \infty} \text{FP}
-	&= \lim _{n \to \infty} \left(\frac
-		{|\lbrace i \mid y _{i} = 0, \hat{y} _{i} = 1\rbrace|}
-		{|\lbrace i \mid \hat{y} _{i} = 1\rbrace|}
-		\right)
+\lim _{n \to \infty} \text{FP} / n
+	&= \lim _{n \to \infty} (1 / n)
+		\left|\lbrace i \mid y _{i} = 0, \hat{y} _{i} = 1\rbrace\right|
 		\\
-	&= \lim _{n \to \infty} \frac
-		{\cancel{n} \Pr \left(y _{i} = 0, \hat{y} _{i} = 1\right)}
-		{\cancel{n} \Pr \left(\hat{y} _{i} = 1\right)}
+	&= \lim _{n \to \infty} \cancel{(1 / n) n} \Pr \left(y _{i} = 0, \hat{y} _{i} = 1\right)
 		\\
-	&= \Pr \left(y _{i} = 0 \mid \hat{y} _{i} = 1\right) \\
-	&= E \left[(1 - p _{i}) \mid p _{i} \geq T _{p}\right] \\
-	&= 1 - E \left[p _{i} \mid p _{i} \geq T _{p}\right] \\
-	&= 1 - \frac{1}{1 - F(T _{p})} \int _{T _{p}}^{1} p \ f (p) \ dp \\
+	&= \Pr \left(y _{i} = 0 \mid \hat{y} _{i} = 1\right)
+		\Pr \left(\hat{y} _{i} = 1\right)
+		\\
+	&= E \left[(1 - p _{i}) \mid p _{i} \geq T _{p}\right]
+		\left(1 - F _{P} (T _{p})\right)
+		\\
+	&= \left(1 - E \left[p _{i} \mid p _{i} \geq T _{p}\right]\right)
+		\left(1 - F _{P} (T _{p})\right)
+		\\
+	&= 1 - F _{P} (T _{p}) - \int _{T _{p}}^{1} p \ f _{P} (p) \ dp \\
 \\
-\lim _{n \to \infty} \text{FN}
-	&= \lim _{n \to \infty} \left(\frac
-		{|\lbrace i \mid y _{i} = 1, \hat{y} _{i} = 0\rbrace|}
-		{|\lbrace i \mid \hat{y} _{i} = 0\rbrace|}
-		\right)
+\lim _{n \to \infty} \text{FN} / n
+	&= \lim _{n \to \infty} (1 / n) 
+		\left|\lbrace i \mid y _{i} = 1, \hat{y} _{i} = 0\rbrace\right|
 		\\
-	&= \lim _{n \to \infty} \frac
-		{\cancel{n} \Pr \left(y _{i} = 1, \hat{y} _{i} = 0\right)}
-		{\cancel{n} \Pr \left(\hat{y} _{i} = 0\right)}
+	&= \lim _{n \to \infty} \cancel{(1 / n) n}
+		\Pr \left(y _{i} = 1, \hat{y} _{i} = 0\right)
 		\\
-	&= \Pr \left(y _{i} = 1 \mid \hat{y} _{i} = 0\right) \\
-	&= E \left[p _{i} \mid p _{i} < T _{p}\right] \\
-	&= \int _{0}^{T _{p}} p \ \frac{f (p)}{F(T _{p})} \ dp \\
-	&= \frac{1}{F(T _{p})} \int _0^{T _{p}} p \ f (p) \ dp \\
+	&= \Pr \left(y _{i} = 1 \mid \hat{y} _{i} = 0\right)
+		\Pr \left(\hat{y} _{i} = 0\right)
+		\\
+	&= E \left[p _{i} \mid p _{i} < T _{p}\right] \left(F _{P} (T _{p})\right) \\
+	&= \cancel{F _{P}(T _{p})} \int _{0}^{T _{p}} p \ \frac{f _{P} (p)}{\cancel{F _{P}(T _{p})}} \ dp \\
+	&= \int _0^{T _{p}} p \ f _{P} (p) \ dp \\
 \\
 \end{align}
 $$
@@ -767,54 +772,25 @@ $$
 \lim _{n \to \infty} F _{1}
 	&= \lim_{n \to \infty} \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
 	&= \frac
-		{2 \left(\frac{1}{1 - F(T _{p})} \int _{T _{p}}^{1} p \ f (p) \ dp\right)}
+		{2 \left(\int _{T _{p}}^{1} p \ f _{P} (p) \ dp\right)}
 		{
-			\cancel{2} \left(\frac{1}{1 - F(T _{p})} \int _{T _{p}}^{1} p \ f (p) \ dp\right)
-			+ \left(1 \cancel{- \frac{1}{1 - F(T _{p})} \int _{T _{p}}^{1} p \ f (p) \ dp}\right)
-			+ \left(\frac{1}{F(T _{p})} \int _0^{T _{p}} p \ f (p) \ dp\right)
+			\cancel{2} \left(\int _{T _{p}}^{1} p \ f _{P} (p) \ dp\right)
+			+ \left(1 - F _{P}(T _{p}) \cancel{- \int _{T _{p}}^{1} p \ f _{P} (p) \ dp}\right)
+			+ \left(\int _0^{T _{p}} p \ f _{P} (p) \ dp\right)
 		}
 		\\
 	&= \frac
-		{2 F(T _{p})\int _{T _{p}}^{1} p \ f (p) \ dp}
-		{
-			F(T _{p}) (1 - F(T _{p})) + F(T _{p}) \int _{T _{p}}^{1} p \ f (p) \ dp
-			+ (1 - F(T _{p})) \int _0^{T _{p}} p \ f (p) \ dp
-		}
+		{2 \int _{T _{p}}^{1} p \ f _{P} (p) \ dp}
+		{1 - F _{P}(T _{p}) + \int _0^{T _{p}} p \ f _{P} (p) \ dp + \int _{T _{p}}^{1} p \ f _{P} (p) \ dp}
+		\\
+	&= \frac
+		{2 \int _{T _{p}}^{1} p \ f _{P} (p) \ dp}
+		{1 - F _{P}(T _{p}) + E [P]}
 		\\
 \end{align}
 $$
 
 the maximum of the long-run F-score will occur at an inflection point
-
--> calculate intermediate derivatives:
-
-$$
-\begin{align}
-\frac{d}{d T _{p}} \left(F(T _{p}) (1 - F(T _{p}))\right)
-	&= f(T _{p}) (1 - F(T _{p})) - F(T _{p}) f(T _{p}) \\
-	&= f(T _{p}) (1 - 2 F(T _{p})) \\
-\\
-\frac{d}{d T _{p}} \left(F(T _{p}) \int _{T _{p}}^{1} p \ f (p) \ dp\right)
-	&= f(T _{p}) \int _{T _{p}}^{1} p \ f (p) \ dp
-		- T _{p} \ f (T _{p}) F(T _{p})
-		\\
-	&= f(T _{p}) \left(
-			\int _{T _{p}}^{1} p \ f (p) \ dp
-			- T _{p} \ F(T _{p})
-		\right)
-		\\
-\\
-\frac{d}{d T _{p}} \left((1 - F(T _{p})) \int _0^{T _{p}} p \ f (p) \ dp\right)
-	&= T _{p} \ f (T _{p}) \ (1 - F(T _{p}))
-		- f(T _{p}) \int _0^{T _{p}} p \ f (p) \ dp
-		\\
-	&= f (T _{p}) \left(
-		T _{p} \ (1 - F(T _{p}))
-		- \int _0^{T _{p}} p \ f (p) \ dp
-		\right)
-		\\
-\end{align}
-$$
 
 -> calculate the derivative w.r.t. $T _{p}$ and set it to zero:
 
@@ -822,14 +798,78 @@ $$
 \begin{align}
 0 = \frac{d}{d T _{p}} \lim _{n \to \infty} F _{1}
 	&= \frac{d}{d T _{p}} \left(\frac
-		{2 F(T _{p})\int _{T _{p}}^{1} p \ f (p) \ dp}
-		{
-			F(T _{p}) (1 - F(T _{p}))
-			+ F(T _{p}) \int _{T _{p}}^{1} p \ f (p) \ dp
-			+ (1 - F(T _{p})) \int _0^{T _{p}} p \ f (p) \ dp
-		}
+		{2 \int _{T _{p}}^{1} p \ f _{P} (p) \ dp}
+		{1 - F _{P}(T _{p}) + E [P]}
 		\right)
+		\\	
+	&= 2 \frac
+		{
+			\frac{d}{d T _{p}} \left(\int _{T _{p}}^{1} p \ f _{P} (p) \ dp\right)
+				\left(1 - F _{P}(T _{p}) + E [P]\right)
+			- \left(\int _{T _{p}}^{1} p \ f _{P} (p) \ dp\right)
+				\frac{d}{d T _{p}} \left(1 - F _{P}(T _{p}) + E [P]\right)
+		}
+		{\left(1 - F _{P}(T _{p}) + E [P]\right)^{2}}
 		\\
-	&= \text{TODO}
+	0 &= 2 \frac
+		{
+			- T _{p} \ f _{P} (T _{p})
+				\left(1 - F _{P}(T _{p}) + E [P]\right)
+			- \left(\int _{T _{p}}^{1} p \ f _{P} (p) \ dp\right)
+				\left(-f _{P}(T _{p})\right)
+		}
+		{\left(1 - F _{P}(T _{p}) + E [P]\right)^{2}}
+		\\
+\to 0 &= - T _{p} \ f _{P} (T _{p})
+			\left(1 - F _{P}(T _{p}) + E [P]\right)
+		\cancel{-} \left(\int _{T _{p}}^{1} p \ f _{P} (p) \ dp\right)
+			\left(\cancel{-}f _{P}(T _{p})\right)
+		\\
+\to T _{p} \ \cancel{f _{P} (T _{p})} \left(1 - F _{P}(T _{p}) + E [P]\right)
+	&= \cancel{f _{P}(T _{p})} \left(\int _{T _{p}}^{1} p \ f _{P} (p) \ dp\right)
+	\\
+\to T _{p} \left(1 - F _{P}(T _{p}) + E [P]\right)
+	&= \left(\int _{T _{p}}^{1} p \ f _{P} (p) \ dp\right)
+	\\
+\end{align}
+$$
+
+## for uniform distribution
+
+$$
+\begin{align}
+f(p) &:= 1 \\
+F (p) &= x \\
+E[P] &= \frac{1}{2} \\
+\end{align}
+$$
+
+->:
+
+$$
+\begin{align}
+\to T _{p} \left(1 - F _{P}(T _{p}) + E [P]\right)
+	&= \left(\int _{T _{p}}^{1} p \ f _{P} (p) \ dp\right)
+	\\
+\to T _{p} \left(1 - (T _{p}) + \frac{1}{2}\right)
+	&= \left(\int _{T _{p}}^{1} p \ (1) \ dp\right)
+	\\
+\to T _{p} \left(\frac{3}{2} - T _{p}\right)
+	&= \left(1 - T _{p}\right)
+	\\
+\to \frac{3}{2} T _{p} - T _{p}^{2} - 1 + T _{p}
+	&= 0
+	\\
+\to T _{p}^{2} - \frac{5}{2} T _{p} + 1
+	&= 0
+	\\
+\to T _{p}
+	&= \frac{- \left(- \frac{5}{2}\right) \pm \sqrt{\left(- \frac{5}{2}\right)^{2} - 4 (1) (1)}}{2 (1)}
+	\\
+	&= \frac{\frac{5}{2} \pm \sqrt{\frac{25}{4} - \frac{16}{4}}}{2} \\
+	&= \frac{\frac{5}{2} \pm \frac{3}{2}}{2} \\
+	&= \frac{5}{4} \pm \frac{3}{4} \\
+	&= \left\lbrace \cancel{\frac{8}{4}}, \frac{2}{4}\right\rbrace \\
+	&= \frac{1}{2} \\
 \end{align}
 $$
