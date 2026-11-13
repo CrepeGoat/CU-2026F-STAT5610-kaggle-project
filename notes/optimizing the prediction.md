@@ -214,6 +214,7 @@ given:
 	- $\hat{S}_{0} = \{i \mid \hat{y}_{i} = 0\}$
 	- $\hat{S}_{1} = \{i \mid \hat{y}_{i} = 1\}$
 	- $\hat{S}_{0} \cup \hat{S}_{1} = \{1, \dots, n\}$
+	- $\hat{S}_{0} \cap \hat{S}_{1} = \varnothing$
 - some UNKNOWN prediction measures $\text{TP}, \text{FP}, \text{FN}$, given our prediction partition stated above
 	- specifically, we don't know the actual response values $\{y_{i}\}_{i = 1}^{n}$
 - some probability of each response value being positive $p_{i} := \Pr (y_{i} = 1)$
@@ -487,35 +488,24 @@ proof outline:
 - => the non-threshold strategy is NOT optimal
 - => any optimal strategy MUST be a threshold strategy
 
-# change in F-score from change in threshold
+# change in F-score from change in one prediction
 
-> suppose we have some F-score over predictions that implement a threshold strategy. if we decrease the threshold (s.t. only one point changes), how does the expected F-score change?
+> suppose we have some F-score over predictions. if we change our prediction $\hat{y}_{i} = 0 \to \hat{y}_{i}' = 1$ for one point $i$, how does the expected F-score change?
 
-(same setup) given:
+(similar setup) given:
 - a sequence of points $\{\underline{x}_{i}\}$
 - a partition for which we predict positively and negatively:
 	- $\hat{S}_{0} = \{i \mid \hat{y}_{i} = 0\}$
 	- $\hat{S}_{1} = \{i \mid \hat{y}_{i} = 1\}$
 	- $\hat{S}_{0} \cup \hat{S}_{1} = \{1, \dots, n\}$
-	- (additionally) some threshold $T_{p}$ s.t.:
-		$$
-		\begin{align}
-		p_{i} < T_{p}
-			&& \forall i \in \hat{S}_{0}
-			\\
-		p_{i} \geq T_{p}
-			&& \forall i \in \hat{S}_{1}
-			\\
-		\end{align}
-		$$
+	- $\hat{S}_{0} \cap \hat{S}_{1} = \varnothing$
 - some UNKNOWN prediction measures $\text{TP}, \text{FP}, \text{FN}$, given our prediction partition stated above
 	- specifically, we don't know the actual response values $\{y_{i}\}_{i = 1}^{n}$
 - some probability of each response value being positive $p_{i} := \Pr (y_{i} = 1)$
 
-suppose we decrease the threshold s.t. we change the prediction from negative to positive of exactly one data point $i$:
+suppose we change the prediction from negative to positive of exactly one data point $i$:
 $$
 \begin{align}
-T_{p}' &= \max_{i \in \hat{S}_{0}} (p_{i}) < T_{p} \\
 \hat{y}_{i} &= 0 \\
 \hat{y}_{i}' &= 1 \\
 \hat{y}_{j} &= \hat{y}_{j}' && \forall j \neq i
@@ -671,6 +661,8 @@ $$
 
 where $F_{1}'$ is the $F_{1}$-score after switching predictions
 
-specifically, we have shown that lowering the positive prediction threshold $T_{p}$ will increase the F-score iff those points included by the new, lower threshold are more than half of the current F-score.
+## implication - $T_{p} = \frac{1}{2} F_{1}$
+
+we have shown that converting a negative prediction to a positive prediction will increase the F-score iff that point's positive response probability is more than half of the current F-score.
 
 more generally, applying this repeatedly yields that **the optimal threshold is half the optimal F-score**.
