@@ -4,7 +4,7 @@ from the prompt:
 
 > Evaluation of how well your classifier is doing will be based on [F1 score](https://en.wikipedia.org/wiki/F-score).
 
-the $F_{1}$-score [is defined as](https://en.wikipedia.org/wiki/F-score#Definition):
+the F-score $F _{1}$ [is defined as](https://en.wikipedia.org/wiki/F-score#Definition):
 
 $$
 \begin{align}
@@ -19,11 +19,11 @@ where the true positive, false positive, and false negative rates are defined as
 $$
 \begin{align}
 \text{TP}
-	&:= |\{\hat{y}_{i}, y_{i} \mid \hat{y}_{i} = 1 = y_{i}\}| \\
+	&:= |\lbrace \hat{y}_{i}, y_{i} \mid \hat{y}_{i} = 1 = y_{i}\rbrace| \\
 \text{FP}
-	&:= |\{\hat{y}_{i}, y_{i} \mid \hat{y}_{i} = 1 \neq y_{i} = 0\}| \\
+	&:= |\lbrace \hat{y}_{i}, y_{i} \mid \hat{y}_{i} = 1 \neq y_{i} = 0\rbrace| \\
 \text{FN}
-	&:= |\{\hat{y}_{i}, y_{i} \mid \hat{y}_{i} = 0 \neq y_{i} = 1\}| \\
+	&:= |\lbrace \hat{y}_{i}, y_{i} \mid \hat{y}_{i} = 0 \neq y_{i} = 1\rbrace| \\
 \end{align}
 $$
 
@@ -37,17 +37,20 @@ $$
 # computing $F_{1}$
 
 given:
-- a sequence of points $\{\underline{x}_{i}\}$
+- a sequence of points $\lbrace \underline{x}_{i}\rbrace$
 - a partition for which we predict positively and negatively:
-	- $\hat{S}_{0} = \{i \mid \hat{y}_{i} = 0\}$
-	- $\hat{S}_{1} = \{i \mid \hat{y}_{i} = 1\}$
-	- $\hat{S}_{0} \cup \hat{S}_{1} = \{1, \dots, n\}$
+	- $\hat{S} _{0} = \lbrace i \mid \hat{y} _{i} = 0\rbrace$
+	- $\hat{S} _{1} = \lbrace i \mid \hat{y} _{i} = 1\rbrace$
+	- $\hat{S} _{0} \cup \hat{S} _{1} = \lbrace 1, \dots, n\rbrace$
+	- $\hat{S} _{0} \cap \hat{S} _{1} = \varnothing$
 - a partition for which the response is positive and negative:
-	- $S_{0} = \{i \mid y_{i} = 0\}$
-	- $S_{1} = \{i \mid y_{i} = 1\}$
-	- $S_{0} \cup S_{1} = \{1, \dots, n\}$
+	- $S _{0} = \lbrace i \mid y _{i} = 0\rbrace$
+	- $S _{1} = \lbrace i \mid y _{i} = 1\rbrace$
+	- $S _{0} \cup S _{1} = \lbrace 1, \dots, n\rbrace$
+	- $S _{0} \cap S _{1} = \varnothing$
 
--> then the $F_{1}$-score is computed as:
+-> then the F-score is computed as:
+
 $$
 \begin{align}
 F_{1}
@@ -66,88 +69,98 @@ $$
 # simple case - optimize for a given $p$
 
 suppose that we have:
-- a set of points $\{\underline{x}_{i}\}$
+- a set of points $\lbrace \underline{x}_{i}\rbrace$
 - some conditional probability of a positive response $p = \Pr (y_{i} = 1 \mid \underline{x}_{i})$
 
--> our $F_{1}$-score under different tactics:
-1. **always choose $\hat{y}_{i} = 0$** - in this case $\text{TP} = 0$, so inherently:
-	$$
-	\lim_{n \to \infty} \left(F_{1} \mid \hat{y}_{i} = 0\right)
-		= \frac{0}{(\dots)}
-		= 0
-	$$
-	<iframe src="https://www.desmos.com/calculator/1pov1fpncp?embed" width="400" height="400" style="border: 1px solid #ccc" frameborder=0></iframe>
+-> our F-score under different tactics:
 
-2. **always choose $\hat{y}_{i} = 1$**:
-	$$
-	\begin{align}
-	\lim_{n \to \infty} \left(F_{1} \mid \hat{y}_{i} = 1\right)
-		&= \lim_{n \to \infty} \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
-		&= \lim_{n \to \infty} \frac
-			{2 (n p)}
-			{2 (n p) + (n (1 - p)) + (0)}
-			& \text{def. of probability}
-			\\
-		&= \lim_{n \to \infty} \frac
-			{2 n p}
-			{n p + \cancel{n p} + n (1 \cancel{- p})}
-			\\
-		&= \lim_{n \to \infty} \frac
-			{2 \cancel{n} p}
-			{\cancel{n} (1 + p)}
-			\\
-		&= 2 \frac{p}{1 + p} \\
-	\end{align}
-	$$
+## 1. **always choose $\hat{y} _{i} = 0$**
 
-	<iframe src="https://www.desmos.com/calculator/pvt3c2gzai?embed" width="400" height="400" style="border: 1px solid #ccc" frameborder=0></iframe>
+in this case $\text{TP} = 0$, so inherently:
 
-3. randomly choose at some rate $r$ - $\hat{y}_{i} \sim \text{Bernoulli}(r)$:
-	(note that, since the probability $p$ is the same for each set of inputs $\underline{x}_{i}$, there is no effective difference among the points; thus choosing some percentage of the points for which to predict a positive $\hat{y}_{i} = 1 \ \forall i \in S_{1} \subseteq \{1, \dots, n\}$, is no different than choosing these points $S_{1}$ at random)
-	$$
-	\begin{align}
-	&\lim_{n \to \infty} \left(F_{1} \mid \hat{y}_{i} \sim \text{Bernoulli} (r)\right) \\
-		&= \lim_{n \to \infty} \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
-		&= \lim_{n \to \infty} \frac
-			{2 (n p r)}
-			{2 (n p r) + (n (1 - p) r) + (n p (1 - r))}
-			\\
-		&= \lim_{n \to \infty} \frac
-			{2 n p r}
-			{\cancel{2 n p r} + n r \cancel{- n p r} + n p \cancel{- n p r}}
-			\\
-		&= \lim_{n \to \infty} \frac{2 \cancel{n} p r}{\cancel{n} (r + p)} \\
-		&= \frac{2 p r}{r + p} \\
-	\end{align}
-	$$
+$$
+\lim_{n \to \infty} \left(F_{1} \mid \hat{y}_{i} = 0\right)
+	= \frac{0}{(\dots)}
+	= 0
+$$
+	
+<iframe src="https://www.desmos.com/calculator/1pov1fpncp?embed" width="400" height="400" style="border: 1px solid #ccc" frameborder=0></iframe>
 
-	(note that this is consistent with the prior two results, when setting $r = 0, r = 1$, respectively)
+## 2. **always choose $\hat{y} _{i} = 1$**
 
-	we then want to choose $r$ s.t. we maximize this quantity:
-	$$
-	\begin{align}
-	&\arg \max_{r \in [0, 1]} \lim_{n \to \infty} \left(F_{1} \mid \hat{y}_{i} \sim \text{Bernoulli} (r)\right) \\
-		&= \arg \max_{r \in [0, 1]} \left(\frac{2 p r}{r + p}\right) \\
-		&= \arg \max_{r \in [0, 1]} \left(\frac{2 p}{1 + p / r}\right)
-			& \text{$1 / f(r)$ is decreasing w.r.t. $f(r)$}
-			\\
-		&= \arg \min_{r \in [0, 1]} \left(1 + \frac{p}{r}\right)
-			& \text{$1 + f(r)$ is increasing w.r.t. $f(r)$}
-			\\
-		&= \arg \min_{r \in [0, 1]} \left(\frac{p}{r}\right)
-			& \text{$1 / f(r)$ is decreasing w.r.t. $f(r)$}
-			\\
-		&= \arg \max_{r \in [0, 1]} \left(r\right) \\
-		&= 1 \\
-	\end{align}
-	$$
+$$
+\begin{align}
+\lim_{n \to \infty} \left(F_{1} \mid \hat{y}_{i} = 1\right)
+	&= \lim_{n \to \infty} \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
+	&= \lim_{n \to \infty} \frac
+		{2 (n p)}
+		{2 (n p) + (n (1 - p)) + (0)}
+		& \text{def. of probability}
+		\\
+	&= \lim_{n \to \infty} \frac
+		{2 n p}
+		{n p + \cancel{n p} + n (1 \cancel{- p})}
+		\\
+	&= \lim_{n \to \infty} \frac
+		{2 \cancel{n} p}
+		{\cancel{n} (1 + p)}
+		\\
+	&= 2 \frac{p}{1 + p} \\
+\end{align}
+$$
 
-	**-> the optimal case is when $r = 1$; i.e., case 2 - always choose $\hat{y}_{i} = 1$.**
+<iframe src="https://www.desmos.com/calculator/pvt3c2gzai?embed" width="400" height="400" style="border: 1px solid #ccc" frameborder=0></iframe>
 
+## 3. randomly choose at some rate $r$
+
+where $\hat{y} _{i} \sim \text{Bernoulli}(r)$:
+
+(note that, since the probability $p$ is the same for each set of inputs $\underline{x}_{i}$, there is no effective difference among the points; thus choosing some percentage of the points for which to predict a positive $\hat{y} _{i} = 1 \ \forall i \in S _{1} \subseteq \lbrace 1, \dots, n\rbrace$, is no different than choosing these points $S_{1}$ at random)
+
+$$
+\begin{align}
+&\lim_{n \to \infty} \left(F_{1} \mid \hat{y}_{i} \sim \text{Bernoulli} (r)\right) \\
+	&= \lim_{n \to \infty} \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
+	&= \lim_{n \to \infty} \frac
+		{2 (n p r)}
+		{2 (n p r) + (n (1 - p) r) + (n p (1 - r))}
+		\\
+	&= \lim_{n \to \infty} \frac
+		{2 n p r}
+		{\cancel{2 n p r} + n r \cancel{- n p r} + n p \cancel{- n p r}}
+		\\
+	&= \lim_{n \to \infty} \frac{2 \cancel{n} p r}{\cancel{n} (r + p)} \\
+	&= \frac{2 p r}{r + p} \\
+\end{align}
+$$
+
+(note that this is consistent with the prior two results, when setting $r = 0, r = 1$, respectively)
+
+we then want to choose $r$ s.t. we maximize this quantity:
+	
+$$
+\begin{align}
+&\arg \max_{r \in [0, 1]} \lim_{n \to \infty} \left(F_{1} \mid \hat{y}_{i} \sim \text{Bernoulli} (r)\right) \\
+	&= \arg \max_{r \in [0, 1]} \left(\frac{2 p r}{r + p}\right) \\
+	&= \arg \max_{r \in [0, 1]} \left(\frac{2 p}{1 + p / r}\right)
+		& \text{$1 / f(r)$ is decreasing w.r.t. $f(r)$}
+		\\
+	&= \arg \min_{r \in [0, 1]} \left(1 + \frac{p}{r}\right)
+		& \text{$1 + f(r)$ is increasing w.r.t. $f(r)$}
+		\\
+	&= \arg \min_{r \in [0, 1]} \left(\frac{p}{r}\right)
+		& \text{$1 / f(r)$ is decreasing w.r.t. $f(r)$}
+		\\
+	&= \arg \max_{r \in [0, 1]} \left(r\right) \\
+	&= 1 \\
+\end{align}
+$$
+
+**-> the optimal case is when $r = 1$; i.e., case 2 - always choose $\hat{y} _{i} = 1$.**
 
 ## note on expected values
 
-> Why did we take the long-run value $\lim_{n \to \infty} (\dots)$ instead of just taking the expected value $E [\dots]$?
+> Why did we take the long-run value $\lim _{n \to \infty} (\dots)$ instead of just taking the expected value $E [\dots]$?
 
 the expected value has a lot of nice properties:
 
@@ -183,15 +196,15 @@ $$
 # more complex case - points w/ variable $p_i$
 
 given:
-- a sequence of points $\{\underline{x}_{i}\}$
+- a sequence of points $\lbrace \underline{x} _{i}\rbrace$
 - a probability distribution for the probability of a positive response for a given data point:
 	$$
 	p_{i} := \Pr (y_{i} = 1)
 	$$
-	where $\{p_{i}\}_{i = 1}^{n}$ are i.i.d.
-- we always predict a positive response $\hat{y}_{i} = 1$
+	where $\lbrace p_{i}\rbrace_{i = 1}^{n}$ are i.i.d.
+- we always predict a positive response $\hat{y} _{i} = 1$
 
--> then the long-run $F_{1}$-score is:
+-> then the long-run F-score is:
 
 $$
 \begin{align}
@@ -206,22 +219,22 @@ TODO
 
 # increase F-score via prediction swap
 
-> suppose we have some $F_{1}$ for which $\hat{y}_{i} = 0, \hat{y}_{j} = 1$ and for some $p_{i}, p_{j}$. what is the effect on $F_{1}$ of swapping these two predictions s.t. $\hat{y}_{i} = 1, \hat{y}_{j} = 0$?
+> suppose we have some $F _{1}$ for which $\hat{y} _{i} = 0, \hat{y} _{j} = 1$ and for some $p _{i}, p _{j}$. what is the effect on $F _{1}$ of swapping these two predictions s.t. $\hat{y} _{i} = 1, \hat{y} _{j} = 0$?
 
 given:
-- a sequence of points $\{\underline{x}_{i}\}$
+- a sequence of points $\lbrace \underline{x}_{i}\rbrace$
 - a partition for which we predict positively and negatively:
-	- $\hat{S}_{0} = \{i \mid \hat{y}_{i} = 0\}$
-	- $\hat{S}_{1} = \{i \mid \hat{y}_{i} = 1\}$
-	- $\hat{S}_{0} \cup \hat{S}_{1} = \{1, \dots, n\}$
-	- $\hat{S}_{0} \cap \hat{S}_{1} = \varnothing$
+	- $\hat{S} _{0} = \lbrace i \mid \hat{y} _{i} = 0\rbrace$
+	- $\hat{S} _{1} = \lbrace i \mid \hat{y} _{i} = 1\rbrace$
+	- $\hat{S} _{0} \cup \hat{S} _{1} = \lbrace 1, \dots, n\rbrace$
+	- $\hat{S} _{0} \cap \hat{S} _{1} = \varnothing$
 - some UNKNOWN prediction measures $\text{TP}, \text{FP}, \text{FN}$, given our prediction partition stated above
-	- specifically, we don't know the actual response values $\{y_{i}\}_{i = 1}^{n}$
-- some probability of each response value being positive $p_{i} := \Pr (y_{i} = 1)$
+	- specifically, we don't know the actual response values $\lbrace y _{i}\rbrace _{i = 1}^{n}$
+- some probability of each response value being positive $p_{i} := \Pr (y _{i} = 1)$
 
 suppose we switch the predictions for two points at indices $i, j$
-- assume our predictions are opposing; i.e. $\hat{y}_{i} = 0 \neq 1 = \hat{y}_{j}$
-- -> switching predictions yields $\hat{y}_{i}' = 1 \neq 0 = \hat{y}_{j}'$
+- assume our predictions are opposing; i.e. $\hat{y} _{i} = 0 \neq 1 = \hat{y} _{j}$
+- -> switching predictions yields $\hat{y} _{i}' = 1 \neq 0 = \hat{y} _{j}'$
 
 -> our new prediction measures are then:
 
@@ -229,16 +242,16 @@ $$
 \begin{align}
 \text{TP}'
 	&= \text{TP} \\
-		&\hspace{1cm} \cancel{- \mathbb{1} \left\{y_{i} = 1, \hat{y}_{i} = 1\right\}} \\
-		&\hspace{1cm} - \mathbb{1} \left\{y_{j} = 1, \cancel{\hat{y}_{j} = 1}\right\} \\
-		&\hspace{1cm} + \mathbb{1} \left\{y_{i} = 1, \cancel{\hat{y}_{i}' = 1}\right\} \\
-		&\hspace{1cm} \cancel{+ \mathbb{1} \left\{y_{j} = 1, \hat{y}_{j}' = 1\right\}} \\
+		&\hspace{1cm} \cancel{- \mathbb{1} \left\lbrace y_{i} = 1, \hat{y}_{i} = 1\right\rbrace} \\
+		&\hspace{1cm} - \mathbb{1} \left\lbrace y_{j} = 1, \cancel{\hat{y}_{j} = 1}\right\rbrace \\
+		&\hspace{1cm} + \mathbb{1} \left\lbrace y_{i} = 1, \cancel{\hat{y}_{i}' = 1}\right\rbrace \\
+		&\hspace{1cm} \cancel{+ \mathbb{1} \left\lbrace y_{j} = 1, \hat{y}_{j}' = 1\right\rbrace} \\
 	&= \text{TP}
-		- \mathbb{1} \left\{y_{j} = 1\right\}
-		+ \mathbb{1} \left\{y_{i} = 1\right\}
+		- \mathbb{1} \left\lbrace y_{j} = 1\right\rbrace
+		+ \mathbb{1} \left\lbrace y_{i} = 1\right\rbrace
 		\\
 	\\
-	&= \left\{\begin{array}{ll}
+	&= \left\lbrace \begin{array}{ll}
 			\text{TP} & y_{i} = y_{j} \\
 			\text{TP} - 1 & y_{i} = 0, y_{j} = 1 \\
 			\text{TP} + 1 & y_{i} = 1, y_{j} = 0 \\
@@ -247,16 +260,16 @@ $$
 \\
 \text{FP}'
 	&= \text{FP} \\
-		&\hspace{1cm} \cancel{- \mathbb{1} \left\{y_{i} = 0, \hat{y}_{i} = 1\right\}} \\
-		&\hspace{1cm} - \mathbb{1} \left\{y_{j} = 0, \cancel{\hat{y}_{j} = 1}\right\} \\
-		&\hspace{1cm} + \mathbb{1} \left\{y_{i} = 0, \cancel{\hat{y}_{i}' = 1}\right\} \\
-		&\hspace{1cm} \cancel{+ \mathbb{1} \left\{y_{j} = 0, \hat{y}_{j}' = 1\right\}} \\
+		&\hspace{1cm} \cancel{- \mathbb{1} \left\lbrace y_{i} = 0, \hat{y}_{i} = 1\right\rbrace} \\
+		&\hspace{1cm} - \mathbb{1} \left\lbrace y_{j} = 0, \cancel{\hat{y}_{j} = 1}\right\rbrace \\
+		&\hspace{1cm} + \mathbb{1} \left\lbrace y_{i} = 0, \cancel{\hat{y}_{i}' = 1}\right\rbrace \\
+		&\hspace{1cm} \cancel{+ \mathbb{1} \left\lbrace y_{j} = 0, \hat{y}_{j}' = 1\right\rbrace} \\
 	&= \text{FP}
-		- \mathbb{1} \left\{y_{j} = 0\right\}
-		+ \mathbb{1} \left\{y_{i} = 0\right\}
+		- \mathbb{1} \left\lbrace y_{j} = 0\right\rbrace
+		+ \mathbb{1} \left\lbrace y_{i} = 0\right\rbrace
 		\\
 	\\
-	&= \left\{\begin{array}{ll}
+	&= \left\lbrace \begin{array}{ll}
 			\text{FP} & y_{i} = y_{j} \\
 			\text{FP} + 1 & y_{i} = 0, y_{j} = 1 \\
 			\text{FP} - 1 & y_{i} = 1, y_{j} = 0 \\
@@ -265,16 +278,16 @@ $$
 \\
 \text{FN}'
 	&= \text{FN} \\
-		&\hspace{1cm} - \mathbb{1} \left\{y_{i} = 1, \cancel{\hat{y}_{i} = 0}\right\} \\
-		&\hspace{1cm} \cancel{- \mathbb{1} \left\{y_{j} = 1, \hat{y}_{j} = 0\right\}} \\
-		&\hspace{1cm} \cancel{+ \mathbb{1} \left\{y_{i} = 1, \hat{y}_{i}' = 0\right\}} \\
-		&\hspace{1cm} + \mathbb{1} \left\{y_{j} = 1, \cancel{\hat{y}_{j}' = 0}\right\} \\
+		&\hspace{1cm} - \mathbb{1} \left\lbrace y_{i} = 1, \cancel{\hat{y}_{i} = 0}\right\rbrace \\
+		&\hspace{1cm} \cancel{- \mathbb{1} \left\lbrace y_{j} = 1, \hat{y}_{j} = 0\right\rbrace} \\
+		&\hspace{1cm} \cancel{+ \mathbb{1} \left\lbrace y_{i} = 1, \hat{y}_{i}' = 0\right\rbrace} \\
+		&\hspace{1cm} + \mathbb{1} \left\lbrace y_{j} = 1, \cancel{\hat{y}_{j}' = 0}\right\rbrace \\
 	&= \text{FN}
-		- \mathbb{1} \left\{y_{i} = 1\right\}
-		+ \mathbb{1} \left\{y_{j} = 1\right\}
+		- \mathbb{1} \left\lbrace y_{i} = 1\right\rbrace
+		+ \mathbb{1} \left\lbrace y_{j} = 1\right\rbrace
 		\\
 	\\
-	&= \left\{\begin{array}{ll}
+	&= \left\lbrace \begin{array}{ll}
 			\text{FN} & y_{i} = y_{j} \\
 			\text{FN} + 1 & y_{i} = 0, y_{j} = 1 \\
 			\text{FN} - 1 & y_{i} = 1, y_{j} = 0 \\
@@ -284,13 +297,13 @@ $$
 $$
 
 
--> the expectation of our new score $F_{1}'$ would then be:
+-> the expectation of our new score $F _{1}'$ would then be:
 
 $$
 \begin{align}
 E \left[F_{1}'\right]
 	&= E \left[\frac{2 \text{TP}'}{2 \text{TP}' + \text{FP}' + \text{FN}'}\right] \\
-	&= \sum_{y_{i}, y_{j} \in \{0, 1\}} \Pr(y_{i}, y_{j})
+	&= \sum_{y_{i}, y_{j} \in \lbrace 0, 1\rbrace} \Pr(y_{i}, y_{j})
 		\cdot \left(\frac
 			{2 \text{TP}'}
 			{2 \text{TP}' + \text{FP}' + \text{FN}'}
@@ -391,7 +404,7 @@ E \left[F_{1}'\right]
 \end{align}
 $$
 
-compared to the original $F_{1}$-score:
+compared to the original F-score:
 
 $$
 \begin{align}
@@ -426,84 +439,99 @@ $$
 }
 $$
 
-where $F_{1}'$ is the $F_{1}$-score after switching predictions
+where $F _{1}'$ is the F-score after switching predictions
 
 
-specifically, we have shown that **we can increase the expectation of the $F_{1}$ score by switching predictions**, s.t.:
-- a point $i$ with a higher positive-response probability $p_{i}$ is assigned a positive response $\cancel{\hat{y}_{i} = 0} \to \hat{y}_{i} = 1$
-- a point $j$ with a lower positive-response probability $p_{j} < p_{i}$ is assigned a negative response $\cancel{\hat{y}_{j} = 1} \to  \hat{y}_{j} = 0$
+specifically, we have shown that **we can increase the expectation of the F-score by switching predictions**, s.t.:
+- a point $i$ with a higher positive-response probability $p _{i}$ is assigned a positive response $\cancel{\hat{y} _{i} = 0} \to \hat{y} _{i} = 1$
+- a point $j$ with a lower positive-response probability $p _{j} < p _{i}$ is assigned a negative response $\cancel{\hat{y} _{j} = 1} \to  \hat{y} _{j} = 0$
 
 ## implication - thresholds are optimal
 
-given [[#increase F-score via prediction swap|the swap result]], we can show that **any optimal strategy can be described as some threshold on the positive response probabilities $\{p_{i}\}_{i = 1}^{n}$**
+given [[#increase F-score via prediction swap|the swap result]], we can show that **any optimal strategy can be described as some threshold on the positive response probabilities $\lbrace p _{i}\rbrace_{i = 1}^{n}$**
 
 proof outline:
-- a strategy for "thresholding" involves predictions $\{\hat{y}_{i}\}_{i = 1}^{n}$ s.t., for some threshold value $T_{p}$:
-	1. any point $i$ with a probability below the threshold $p_{i} < T_{p}$ gets a negative prediction $\hat{y}_{i} = 0$
-	2. any point $i$ with a probability above (or equal to) the threshold $p_{i} \geq T_{p}$ gets a positive prediction $\hat{y}_{i} = 1$
+- start with [[#def - threshold strategy|the definition of a threshold strategy]]
 - a strategy cannot be expressed as a threshold strategy iff, for some value $T_{p}$:
-	- there exists a point indexed at $i$, where the probability is beneath the value $p_{i} < T_{p}$ and the prediction is positive $\hat{y}_{i} = 1$
+	- there exists a point indexed at $i$, where the probability is beneath the value $p_{i} < T_{p}$ and the prediction is positive $\hat{y} _{i} = 1$
 		- to satisfy property 1, the threshold value must be *decreased* s.t. $T_{p} < p_{i}$
-	- AND there also exists a point indexed at $j$, where the probability is above the value $p_{j} \geq T_{p}$ and the prediction is negative $\hat{y}_{i} = 0$
+	- AND there also exists a point indexed at $j$, where the probability is above the value $p_{j} \geq T_{p}$ and the prediction is negative $\hat{y} _{i} = 0$
 		- to satisfy property 2, the threshold value must be *increased* s.t. $T_{p} \geq p_{j}$
 	- -> the threshold cannot be both increased and decreased
 	- => the properties are not satisfiable
-	- the reverse implication - if not a threshold strategy, then there is a negatively-predicted point $j$ with a higher (or equal) positive response probability than a positively-predicted point $i$
-		- to be a non-thresholding strategy, then for all $T$ one of the conditions must fail
-			- the 1st condition fails for all thresholds above the lowest PRP of NP-points $\min_{j \in \hat{S}_{1}} p_{j} \leq T$
-			- the 2nd condition fails for all thresholds below the highest NRP of PP-points $T < \max_{i \in \hat{S}_{0}} p_{i}$
-		1. for all $T$ to fail, these two failure conditions must cover the whole probability space $[0, 1]$:
-			$$
-			\begin{align}
-			T &\in
-				\left[\min_{j \in \hat{S}_{1}} p_{j}, 1\right]
-				\cap \left[0, \max_{i \in \hat{S}_{0}} p_{i}\right)
-				\\
-			\to \min_{j \in \hat{S}_{1}} p_{j} &\leq \max_{i \in \hat{S}_{0}} p_{i} \\
-			\end{align}
-			$$
-		1. note also the two prediction sets are mutually exclusive $\hat{S}_{0} \cap \hat{S}_{1} = \varnothing$
-		- -> from 1. and 2., there must be two distinct points $i, j$ s.t.:
-			$$
-			\begin{align}
-			i \in \hat{S}_{0} \implies& \hat{y}_{i} = 0 \\
-			j \in \hat{S}_{1} \implies& \hat{y}_{j} = 1 \\
-			\\
-			p_{i} &\geq p_{j} \\
-			i &\neq j \\
-			\end{align}
-			$$
-	- lastly, we also assume that all points $i, j$ have unique predictions $p_{i} \neq p_{j}$ (which should be reasonable for any model incorporating non-categorical predictors):
-		$$
-		\exists i \neq j \text{ s.t. }
-			\left\{\begin{array}{ll}
-				\hat{y}_{i} = 0 \\
-				\hat{y}_{j} = 1 \\
-				p_{i} > p_{j} \\
-			\end{array}\right.
-		$$
-
-- any strategy that is not a threshold strategy can swap predictions at $(i, j)$, where $p_{i} < T_{p} \leq p_{j}$ and $\hat{y}_{i} = 1, \hat{y}_{j} = 0$
+	- the reverse implication, shown [[#lemma - non-threshold strategy|here]]
+- any strategy that is not a threshold strategy can swap predictions at $(i, j)$, where $p_{i} < T_{p} \leq p_{j}$ and $\hat{y} _{i} = 1, \hat{y} _{j} = 0$
 - -> as shown in [[#increase F-score via prediction swap|the swap-increase property]], such a swap *must* increase (the expected value of) the F-score
 - => the non-threshold strategy is NOT optimal
 - => any optimal strategy MUST be a threshold strategy
 
+### def - threshold strategy
+
+a strategy for "thresholding" involves predictions $\lbrace \hat{y} _{i}\rbrace _{i = 1}^{n}$ s.t., for some threshold value $T_{p}$:
+1. any point $i$ with a probability below the threshold $p_{i} < T_{p}$ gets a negative prediction $\hat{y} _{i} = 0$
+2. any point $i$ with a probability above (or equal to) the threshold $p_{i} \geq T_{p}$ gets a positive prediction $\hat{y} _{i} = 1$
+
+### lemma - non-threshold strategy
+
+if not a threshold strategy, then there is a negatively-predicted point $j$ with a higher (or equal) positive response probability than a positively-predicted point $i$
+
+- to be a non-thresholding strategy, then for all $T$ one of the conditions must fail
+	- the 1st condition fails for all thresholds above the lowest PRP of NP-points $\min _{j \in \hat{S} _{1}} p _{j} \leq T$
+	- the 2nd condition fails for all thresholds below the highest NRP of PP-points $T < \max _{i \in \hat{S} _{0}} p _{i}$
+1. for all $T$ to fail, these two failure conditions must cover the whole probability space $[0, 1]$:
+
+$$
+\begin{align}
+T &\in
+	\left[\min_{j \in \hat{S}_{1}} p_{j}, 1\right]
+	\cap \left[0, \max_{i \in \hat{S}_{0}} p_{i}\right)
+	\\
+\to \min_{j \in \hat{S}_{1}} p_{j} &\leq \max_{i \in \hat{S}_{0}} p_{i} \\
+\end{align}
+$$
+
+2. note also the two prediction sets are mutually exclusive $\hat{S} _{0} \cap \hat{S} _{1} = \varnothing$
+- -> from 1. and 2., there must be two distinct points $i, j$ s.t.:
+			
+$$
+\begin{align}
+i \in \hat{S}_{0} \implies& \hat{y}_{i} = 0 \\
+j \in \hat{S}_{1} \implies& \hat{y}_{j} = 1 \\
+\\
+p_{i} &\geq p_{j} \\
+i &\neq j \\
+\end{align}
+$$
+
+- lastly, we also assume that all points $i, j$ have unique predictions $p_{i} \neq p_{j}$ (which should be reasonable for any model incorporating non-categorical predictors):
+
+$$
+\exists i \neq j \text{ s.t. }
+	\left\lbrace \begin{array}{ll}
+		\hat{y}_{i} = 0 \\
+		\hat{y}_{j} = 1 \\
+		p_{i} > p_{j} \\
+	\end{array}\right.
+$$
+
+
 # change in F-score from change in one prediction
 
-> suppose we have some F-score over predictions. if we change our prediction $\hat{y}_{i} = 0 \to \hat{y}_{i}' = 1$ for one point $i$, how does the expected F-score change?
+> suppose we have some F-score over predictions. if we change our prediction $\hat{y} _{i} = 0 \to \hat{y} _{i}' = 1$ for one point $i$, how does the expected F-score change?
 
 (similar setup) given:
-- a sequence of points $\{\underline{x}_{i}\}$
+- a sequence of points $\lbrace \underline{x}_{i}\rbrace$
 - a partition for which we predict positively and negatively:
-	- $\hat{S}_{0} = \{i \mid \hat{y}_{i} = 0\}$
-	- $\hat{S}_{1} = \{i \mid \hat{y}_{i} = 1\}$
-	- $\hat{S}_{0} \cup \hat{S}_{1} = \{1, \dots, n\}$
-	- $\hat{S}_{0} \cap \hat{S}_{1} = \varnothing$
+	- $\hat{S} _{0} = \lbrace i \mid \hat{y} _{i} = 0\rbrace$
+	- $\hat{S} _{1} = \lbrace i \mid \hat{y} _{i} = 1\rbrace$
+	- $\hat{S} _{0} \cup \hat{S} _{1} = \lbrace 1, \dots, n\rbrace$
+	- $\hat{S} _{0} \cap \hat{S} _{1} = \varnothing$
 - some UNKNOWN prediction measures $\text{TP}, \text{FP}, \text{FN}$, given our prediction partition stated above
-	- specifically, we don't know the actual response values $\{y_{i}\}_{i = 1}^{n}$
+	- specifically, we don't know the actual response values $\lbrace y_{i}\rbrace_{i = 1}^{n}$
 - some probability of each response value being positive $p_{i} := \Pr (y_{i} = 1)$
 
 suppose we change the prediction from negative to positive of exactly one data point $i$:
+
 $$
 \begin{align}
 \hat{y}_{i} &= 0 \\
@@ -518,14 +546,14 @@ $$
 \begin{align}
 \text{TP}'
 	&= \text{TP}
-		\cancel{- \mathbb{1} \left\{y_{i} = 1, \hat{y}_{i} = 1\right\}}
-		+ \mathbb{1} \left\{y_{i} = 1, \cancel{\hat{y}_{i}' = 1}\right\}
+		\cancel{- \mathbb{1} \left\lbrace y_{i} = 1, \hat{y}_{i} = 1\right\rbrace}
+		+ \mathbb{1} \left\lbrace y_{i} = 1, \cancel{\hat{y}_{i}' = 1}\right\rbrace
 		\\
 	&= \text{TP}
-		+ \mathbb{1} \left\{y_{i} = 1\right\}
+		+ \mathbb{1} \left\lbrace y_{i} = 1\right\rbrace
 		\\
 	\\
-	&= \left\{\begin{array}{ll}
+	&= \left\lbrace \begin{array}{ll}
 			\text{TP} & y_{i} = 0 \\
 			\text{TP} + 1 & y_{i} = 1 \\
 		\end{array}\right.
@@ -533,14 +561,14 @@ $$
 \\
 \text{FP}'
 	&= \text{FP}
-		\cancel{- \mathbb{1} \left\{y_{i} = 0, \hat{y}_{i} = 1\right\}}
-		+ \mathbb{1} \left\{y_{i} = 0, \cancel{\hat{y}_{i}' = 1}\right\}
+		\cancel{- \mathbb{1} \left\lbrace y_{i} = 0, \hat{y}_{i} = 1\right\rbrace}
+		+ \mathbb{1} \left\lbrace y_{i} = 0, \cancel{\hat{y}_{i}' = 1}\right\rbrace
 		\\
 	&= \text{FP}
-		+ \mathbb{1} \left\{y_{i} = 0\right\}
+		+ \mathbb{1} \left\lbrace y_{i} = 0\right\rbrace
 		\\
 	\\
-	&= \left\{\begin{array}{ll}
+	&= \left\lbrace \begin{array}{ll}
 			\text{FP} + 1 & y_{i} = 0 \\
 			\text{FP} & y_{i} = 1 \\
 		\end{array}\right.
@@ -548,14 +576,14 @@ $$
 \\
 \text{FN}'
 	&= \text{FN}
-		- \mathbb{1} \left\{y_{i} = 1, \cancel{\hat{y}_{i} = 0}\right\}
-		\cancel{+ \mathbb{1} \left\{y_{i} = 1, \hat{y}_{i}' = 0\right\}}
+		- \mathbb{1} \left\lbrace y_{i} = 1, \cancel{\hat{y}_{i} = 0}\right\rbrace
+		\cancel{+ \mathbb{1} \left\lbrace y_{i} = 1, \hat{y}_{i}' = 0\right\rbrace}
 		\\
 	&= \text{FN}
-		- \mathbb{1} \left\{y_{i} = 1\right\}
+		- \mathbb{1} \left\lbrace y_{i} = 1\right\rbrace
 		\\
 	\\
-	&= \left\{\begin{array}{ll}
+	&= \left\lbrace \begin{array}{ll}
 			\text{FN} & y_{i} = 0 \\
 			\text{FN} - 1 & y_{i} = 1 \\
 		\end{array}\right.
@@ -569,7 +597,7 @@ $$
 \begin{align}
 E \left[F_{1}'\right]
 	&= E \left[\frac{2 \text{TP}'}{2 \text{TP}' + \text{FP}' + \text{FN}'}\right] \\
-	&= \sum_{y_{i} \in \{0, 1\}} \Pr(y_{i}, y_{j})
+	&= \sum_{y_{i} \in \lbrace 0, 1\rbrace} \Pr(y_{i}, y_{j})
 		\cdot \left(\frac
 			{2 \text{TP}'}
 			{2 \text{TP}' + \text{FP}' + \text{FN}'}
@@ -659,9 +687,9 @@ $$
 }
 $$
 
-where $F_{1}'$ is the $F_{1}$-score after switching predictions
+where $F _{1}'$ is the F-score after switching predictions
 
-## implication - $T_{p} = \frac{1}{2} F_{1}$
+## implication - $T _{p} = \frac{1}{2} F _{1}$
 
 we have shown that converting a negative prediction to a positive prediction will increase the F-score iff that point's positive response probability is more than half of the current F-score.
 
