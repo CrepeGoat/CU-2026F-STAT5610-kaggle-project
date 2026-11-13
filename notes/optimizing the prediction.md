@@ -192,31 +192,6 @@ f \left(\bar{X}, \bar{Y}\right)
 	f \left(\mu_{X}, \mu_{Y}\right)
 $$
 
-
-# more complex case - points w/ variable $p_i$
-
-given:
-- a sequence of points $\lbrace \underline{x} _{i}\rbrace$
-- a probability distribution for the probability of a positive response for a given data point:
-	$$
-	p_{i} := \Pr (y_{i} = 1)
-	$$
-	where $\lbrace p_{i}\rbrace_{i = 1}^{n}$ are i.i.d.
-- we always predict a positive response $\hat{y} _{i} = 1$
-
--> then the long-run F-score is:
-
-$$
-\begin{align}
-\lim_{n \to \infty} F_{1}
-	&= \lim_{n \to \infty} \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
-	&= \lim_{n \to \infty} \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
-\end{align}
-$$
-
-
-TODO
-
 # increase F-score via prediction swap
 
 > suppose we have some $F _{1}$ for which $\hat{y} _{i} = 0, \hat{y} _{j} = 1$ and for some $p _{i}, p _{j}$. what is the effect on $F _{1}$ of swapping these two predictions s.t. $\hat{y} _{i} = 1, \hat{y} _{j} = 0$?
