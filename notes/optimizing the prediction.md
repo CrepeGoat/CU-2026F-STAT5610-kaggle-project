@@ -37,7 +37,7 @@ $$
 # computing $F_{1}$
 
 given:
-- a sequence of points $\lbrace \underline{x}_{i}\rbrace$
+- a sequence of points $\lbrace \underline{x}_{i}\rbrace _{i = 1}^{n}$
 - a partition for which we predict positively and negatively:
 	- $\hat{S} _{0} = \lbrace i \mid \hat{y} _{i} = 0\rbrace$
 	- $\hat{S} _{1} = \lbrace i \mid \hat{y} _{i} = 1\rbrace$
@@ -69,7 +69,7 @@ $$
 # simple case - optimize for a given $p$
 
 suppose that we have:
-- a set of points $\lbrace \underline{x}_{i}\rbrace$
+- a set of points $\lbrace \underline{x}_{i}\rbrace _{i = 1}^{n}$
 - some conditional probability of a positive response $p = \Pr (y_{i} = 1 \mid \underline{x}_{i})$
 
 -> our F-score under different tactics:
@@ -197,7 +197,7 @@ $$
 > suppose we have some $F _{1}$ for which $\hat{y} _{i} = 0, \hat{y} _{j} = 1$ and for some $p _{i}, p _{j}$. what is the effect on $F _{1}$ of swapping these two predictions s.t. $\hat{y} _{i}' = 1, \hat{y} _{j}' = 0$?
 
 given:
-- a sequence of points $\lbrace \underline{x}_{i}\rbrace$
+- a sequence of points $\lbrace \underline{x}_{i}\rbrace _{i = 1}^{n}$
 - a partition for which we predict positively and negatively:
 	- $\hat{S} _{0} = \lbrace i \mid \hat{y} _{i} = 0\rbrace$
 	- $\hat{S} _{1} = \lbrace i \mid \hat{y} _{i} = 1\rbrace$
@@ -510,7 +510,7 @@ TODO make $y _{i}$ completely random ->:
 - $\text{FN} \to \text{FN} + \mathbb{1} \lbrace y _{i} = 1, \hat{y} _{i} = 0\rbrace$
 
 (same setup) given:
-- a sequence of points $\lbrace \underline{x}_{i}\rbrace$
+- a sequence of points $\lbrace \underline{x}_{i}\rbrace _{i = 1}^{n}$
 - a partition for which we predict positively and negatively:
 	- $\hat{S} _{0} = \lbrace i \mid \hat{y} _{i} = 0\rbrace$
 	- $\hat{S} _{1} = \lbrace i \mid \hat{y} _{i} = 1\rbrace$
