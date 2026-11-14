@@ -504,11 +504,6 @@ $$
 
 > suppose we have some F-score over predictions. if we change our prediction $\hat{y} _{i} = 0 \to \hat{y} _{i}' = 1$ for one point $i$, how does the expected F-score change?
 
-TODO make $y _{i}$ completely random ->:
-- $\text{TP} \to \text{TP} + \mathbb{1} \lbrace y _{i} = 1, \hat{y} _{i} = 1\rbrace$
-- $\text{FP} \to \text{FP} + \mathbb{1} \lbrace y _{i} = 0, \hat{y} _{i} = 1\rbrace$
-- $\text{FN} \to \text{FN} + \mathbb{1} \lbrace y _{i} = 1, \hat{y} _{i} = 0\rbrace$
-
 (same setup) given:
 - a sequence of points $\lbrace \underline{x}_{i}\rbrace _{i = 1}^{n}$
 - a partition for which we predict positively and negatively:
@@ -689,10 +684,7 @@ more generally, applying this repeatedly yields that **the optimal threshold is 
 
 > suppose we have a cumulative distribution function (c.d.f.) $F$ that describes the long-run distribution of any given point's positive response probability:
 > 
-> $$
-F(p)
-	:= \Pr \left(\Pr \left(y_{i} = 1 \mid \underline{x}_{i}\right) < p \right)
-$$
+> $$F(p) := \Pr \left(\Pr \left(y_{i} = 1 \mid \underline{x}_{i}\right) < p \right)$$
 > 
 > what is the optimal threshold for maximizing the long-run F-score for this prediction model?
 
@@ -820,17 +812,32 @@ $$
 		}
 		{\left(1 - F _{P}(T _{p}) + E [P]\right)^{2}}
 		\\
-\to 0 &= - T _{p} \ f _{P} (T _{p})
+\to 0 &= - T _{p} \ \cancel{f _{P} (T _{p})}
 			\left(1 - F _{P}(T _{p}) + E [P]\right)
 		\cancel{-} \left(\int _{T _{p}}^{1} p \ f _{P} (p) \ dp\right)
-			\left(\cancel{-}f _{P}(T _{p})\right)
+			\left(\cancel{-} \cancel{f _{P}(T _{p})}\right)
+		& \text{assume $f _{P}(T _{p}) \neq 0$}
 		\\
-\to T _{p} \ \cancel{f _{P} (T _{p})} \left(1 - F _{P}(T _{p}) + E [P]\right)
-	&= \cancel{f _{P}(T _{p})} \left(\int _{T _{p}}^{1} p \ f _{P} (p) \ dp\right)
-	\\
-\to T _{p} \left(1 - F _{P}(T _{p}) + E [P]\right)
-	&= \left(\int _{T _{p}}^{1} p \ f _{P} (p) \ dp\right)
-	\\
+	&= - T _{p} \left(1 - F _{P}(T _{p}) + E [P]\right)
+		+ \int _{T _{p}}^{1} p \ f _{P} (p) \ dp
+		\\
+	&= T _{p} E [P] + (1 - F _{P} (T _{p})) \left(T _{p} - E [P \mid P > T _{p}]\right) \\
+	&= T _{p} \int _{T _{p}}^{1} f _{P} (p) \ dp
+		+ T _{p} \int _{0}^{1} p f _{P} (p) \ dp
+		- \int _{T _{p}}^{1} p \ f _{P} (p) \ dp
+		\\
+	&= T _{p} \left(
+			\int _{0}^{T _{p}}
+				p \ f _{P} (p)
+			\ dp
+		\right)
+		+ T _{p} \left(
+			\int _{T _{p}}^{1} f _{P} (p) \ dp
+		\right)
+		- (1 - T _{p}) \left(
+			\int _{T _{p}}^{1} p \ f _{P} (p) \ dp
+		\right)
+		\\
 \end{align}
 $$
 
