@@ -37,6 +37,7 @@ $$
 # computing $F_{1}$
 
 given:
+
 - a sequence of points $\lbrace \underline{x}_{i}\rbrace _{i = 1}^{n}$
 - a partition for which we predict positively and negatively:
 	- $\hat{S} _{0} = \lbrace i \mid \hat{y} _{i} = 0\rbrace$
@@ -69,6 +70,7 @@ $$
 # simple case - optimize for a given $p$
 
 suppose that we have:
+
 - a set of points $\lbrace \underline{x}_{i}\rbrace _{i = 1}^{n}$
 - some conditional probability of a positive response $p = \Pr (y_{i} = 1 \mid \underline{x}_{i})$
 
@@ -197,6 +199,7 @@ $$
 > suppose we have some $F _{1}$ for which $\hat{y} _{i} = 0, \hat{y} _{j} = 1$ and for some $p _{i}, p _{j}$. what is the effect on $F _{1}$ of swapping these two predictions s.t. $\hat{y} _{i}' = 1, \hat{y} _{j}' = 0$?
 
 given:
+
 - a sequence of points $\lbrace \underline{x}_{i}\rbrace _{i = 1}^{n}$
 - a partition for which we predict positively and negatively:
 	- $\hat{S} _{0} = \lbrace i \mid \hat{y} _{i} = 0\rbrace$
@@ -208,6 +211,7 @@ given:
 - some probability of each response value being positive $p_{i} := \Pr (y _{i} = 1)$
 
 suppose we switch the predictions for two points at indices $i, j$
+
 - assume our predictions are opposing; i.e. $\hat{y} _{i} = 0 \neq 1 = \hat{y} _{j}$
 - -> switching predictions yields $\hat{y} _{i}' = 1 \neq 0 = \hat{y} _{j}'$
 
@@ -270,7 +274,6 @@ $$
 		\\
 \end{align}
 $$
-
 
 -> the expectation of our new score $F _{1}'$ would then be:
 
@@ -418,6 +421,7 @@ where $F _{1}'$ is the F-score after switching predictions
 
 
 specifically, we have shown that **we can increase the expectation of the F-score by switching predictions**:
+
 - a point $i$ with a higher positive-response probability $p _{i}$ is reassigned a positive response $\cancel{\hat{y} _{i} = 0} \to \hat{y} _{i} = 1$
 - a point $j$ with a lower positive-response probability $p _{j} < p _{i}$ is reassigned a negative response $\cancel{\hat{y} _{j} = 1} \to  \hat{y} _{j} = 0$
 
@@ -430,6 +434,7 @@ $$
 $$
 
 proof outline:
+
 - start with [[#def - threshold strategy|the definition of a threshold strategy]]
 - a strategy cannot be expressed as a threshold strategy iff, for some value $T_{p}$:
 	- there exists a point indexed at $i$, where the probability is beneath the value $p_{i} < T_{p}$ and the prediction is positive $\hat{y} _{i} = 1$
@@ -447,6 +452,7 @@ proof outline:
 ### def - threshold strategy
 
 a strategy for "thresholding" involves predictions $\lbrace \hat{y} _{i}\rbrace _{i = 1}^{n}$ s.t., for some threshold value $T_{p}$:
+
 1. any point $i$ with a probability below the threshold $p_{i} < T_{p}$ gets a negative prediction $\hat{y} _{i} = 0$
 2. any point $i$ with a probability above (or equal to) the threshold $p_{i} \geq T_{p}$ gets a positive prediction $\hat{y} _{i} = 1$
 
@@ -499,12 +505,12 @@ $$
 	\end{array}\right.
 $$
 
-
 # change in F-score from change in one prediction
 
 > suppose we have some F-score over predictions. if we change our prediction $\hat{y} _{i} = 0 \to \hat{y} _{i}' = 1$ for one point $i$, how does the expected F-score change?
 
 (same setup) given:
+
 - a sequence of points $\lbrace \underline{x}_{i}\rbrace _{i = 1}^{n}$
 - a partition for which we predict positively and negatively:
 	- $\hat{S} _{0} = \lbrace i \mid \hat{y} _{i} = 0\rbrace$
@@ -683,6 +689,7 @@ we have shown that converting a negative prediction to a positive prediction wil
 ### ❌ algorithm to find optimal threshold / F-score
 
 more generally, consider the following algorithmic process:
+
 - *note - this algorithm assumes we have access to the F-score, which in typical applications will not be feasible*
 - start with a set of all negative predictions $\hat{S} _{0} = \lbrace 1, \dots, n\rbrace, \hat{S} _{1} = \varnothing$
 - reindex the points via the function $\sigma: \lbrace 1, \dots, n\rbrace \to \lbrace 1, \dots, n\rbrace$ s.t. they are ordered by their positive response probability $p _{\sigma (i)} \leq p _{\sigma (j)} \iff i \leq j$
@@ -699,11 +706,13 @@ more generally, consider the following algorithmic process:
 		- continue to the next iteration
 
 -> the result of this algorithm is a set of predictions s.t.:
+
 1. the predictions follow a threshold strategy, where $T _{p} = \frac{1}{2} F _{1}$
 2. considering the item with the lowest positive response probability above the threshold $\arg \min _{i \mid p _{i} > T _{p}} p _{i}$ - setting this item to predict a negative response *would decrease the F-score*
 3. considering the item with the highest positive response probability below the threshold $\arg \max _{i \mid p _{i} < T _{p}} p _{i}$ - setting this item to predict a positive response *would also decrease the F-score*
 
 from all three points, we can conclude that:
+
 - this algorithm must yield an optimal decision strategy
 - the optimal threshold is $T _{p} = \frac{1}{2} F _{1}$, where $F _{1}$ is the optimal achievable F-score for the dataset
 
@@ -722,6 +731,7 @@ from all three points, we can conclude that:
 > what is the optimal threshold for maximizing the long-run F-score for this prediction model?
 
 given:
+
 - a sequence of points $\lbrace \underline{x}_{i}\rbrace _{i = 1}^{n}$
 - some probability of each response value being positive $p_{i} := \Pr (y_{i} = 1)$
 - a c.d.f. characterizing the long-run distribution of positive response probabilities:
@@ -788,7 +798,6 @@ $$
 \\
 \end{align}
 $$
-
 
 the long-run F-score is then:
 
@@ -997,7 +1006,6 @@ T _{p} = \lim _{n \to \infty} F _{1}
 $$
 
 -> this is exactly what we derived [[#via critical point]]
-
 
 # cheezing the system - calculating true values from reported F-scores
 
