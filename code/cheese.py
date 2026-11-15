@@ -6,8 +6,26 @@ def _inner_iter_branch_lr(lbound, rbound, lr=True):
         return
 
     mid = lbound + ((rbound - lbound) // 2)
-    yield from _inner_iter_branch_lr(lbound, mid, True)
-    yield from _inner_iter_branch_lr(mid, rbound, False)
+
+    iterl = _inner_iter_branch_lr(lbound, mid, True)
+    iterr = _inner_iter_branch_lr(mid, rbound, False)
+
+    try:
+        yield next(iterl)
+    except StopIteration:
+        pass
+
+    fails = 0
+    while fails < 2:
+        fails = 0
+        try:
+            yield next(iterl)
+        except StopIteration:
+            fails += 1
+        try:
+            yield next(iterr)
+        except StopIteration:
+            fails += 1
 
     return
 
@@ -21,7 +39,7 @@ def str_range(n, lbound, rbound):
 
 
 def demo_iter_branch_lr():
-    n = 16
+    n = 22
 
     for i, lrrange in enumerate(iter_branch_lr(n)):
         print(f"{i}: {str_range(n, *lrrange)}")
