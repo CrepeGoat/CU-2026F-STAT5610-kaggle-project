@@ -668,17 +668,46 @@ thus:
 $$
 \to \boxed{
 	p_{i} > \frac{1}{2} F_{1}
-	\implies E \left[F_{1}'\right] > E [F_{1}]
+	\iff E \left[F_{1}'\right] > E [F_{1}]
 }
 $$
 
 where $F _{1}'$ is the F-score after switching predictions
 
-## implication - $T _{p} = \frac{1}{2} F _{1}$
+## ❌ implication - $T _{p} = \frac{1}{2} F _{1}$
 
 we have shown that converting a negative prediction to a positive prediction will increase the F-score iff that point's positive response probability is more than half of the current F-score.
 
-more generally, applying this repeatedly yields that **the optimal threshold is half the optimal F-score**.
+more generally, consider the following algorithmic process:
+- *note - this algorithm assumes we have access to the F-score, which in typical applications will not be feasible*
+- start with a set of all negative predictions $\hat{S} _{0} = \lbrace 1, \dots, n\rbrace, \hat{S} _{1} = \varnothing$
+- reindex the points via the function $\sigma: \lbrace 1, \dots, n\rbrace \to \lbrace 1, \dots, n\rbrace$ s.t. they are ordered by their positive response probability $p _{\sigma (i)} \leq p _{\sigma (j)} \iff i \leq j$
+	- e.g., $\sigma (1)$ is the index of the point with the *minimum* positive response probability
+	- e.g., $\sigma (n)$ is the index of the point with the *maximum* positive response probability
+	- etc.
+- iterate through the points in order of decreasing probabilities $i = [\sigma (n), \sigma (n - 1), \dots, \sigma (1)]$:
+	- if the probability of the given point is less than or equal to half the current F-score $p _{i} \leq \frac{1}{2} F _{1}$:
+		- halt the algorithm
+	- => if not s.t. $p _{i} > \frac{1}{2} F _{1}$:
+		- switch the prediction of the current item from negative to positive $\cancel{\hat{y} _{i} = 0} \longrightarrow \hat{y} _{i} = 1$
+		- update the F-score
+			- from [[#increase F-score via prediction swap]], we know that the F-score *must increase* after this operation
+		- continue to the next iteration
+
+-> the result of this algorithm is a set of predictions s.t.:
+1. the predictions follow a threshold strategy, where $T _{p} = \frac{1}{2} F _{1}$
+2. considering the item with the lowest positive response probability above the threshold $\arg \min _{i \mid p _{i} > T _{p}} p _{i}$ - setting this item to predict a negative response *would decrease the F-score*
+3. considering the item with the highest positive response probability below the threshold $\arg \max _{i \mid p _{i} < T _{p}} p _{i}$ - setting this item to predict a positive response *would also decrease the F-score*
+
+from all three points, we can conclude that:
+- this algorithm must yield an optimal decision strategy
+- the optimal threshold is $T _{p} = \frac{1}{2} F _{1}$, where $F _{1}$ is the optimal achievable F-score for the dataset
+
+### why is this wrong?
+
+- the F-score decreases once the positive response probability dips below half the F-score
+- once that happens, the bar drops -> it now requires a smaller positive response probability in order to increase the F-score again
+- -> the first maximum found may just be a local maximum
 
 # optimal long-run threshold as a function of CDF
 
@@ -880,3 +909,51 @@ $$
 	&= \frac{1}{2} \\
 \end{align}
 $$
+
+# cheezing the system - calculating true values from reported F-scores
+
+> suppose for any set of predictions, we can calculate a given F-score. can we use this to find the true response values?
+
+
+from the definition:
+
+$$
+\begin{align}
+F _{1}
+	&= \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
+	&= \frac{2 \text{TP}}{\text{TP} + n - \text{TN}} \\
+\end{align}
+$$
+
+suppose we predict all positives -> $\text{FN} = \text{TN} = 0, \text{TP} = \text{P}, \text{FP} = \text{N} = n - \text{P}$:
+
+$$
+\begin{align}
+F _{1}
+	&= \frac{2 \cancelto{\text{P}}{\text{TP}}}{\cancelto{\text{P}}{\text{TP}} + n \cancel{- \text{TN}}} \\
+	&= \frac{2 \text{P}}{\text{P} + n} \\
+	&= \frac{2}{1 + n / \text{P}} \\
+\to \frac{n}{\text{P}}
+	&= \frac{2}{F _{1}} - 1 \\
+	&= \frac{2 - F _{1}}{F _{1}} \\
+\to \text{P} = \text{TP} + \text{FN}
+	&= \frac{F _{1}}{n (2 - F _{1})} \\
+\end{align}
+$$
+
+given this, we revisit the F-score equation for the general case with arbitrary predictions:
+
+$$
+\begin{align}
+F _{1}
+	&= \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
+	&= \frac{2 \text{TP}}{(\text{TP} + \text{FP}) + (\text{TP} + \text{FN})} \\
+	&= \frac{2 \text{TP}}{\text{PP} + \text{P}} \\
+\to \text{TP}
+	&= \frac{1}{2} F _{1} (\text{PP} + \text{P}) \\
+\end{align}
+$$
+
+where $\text{PP}$ is the number of *predicted positives*, which we also know.
+
+=> this means **every future guess after the first can be used to count the number of positives in our predictions**
