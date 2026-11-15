@@ -1,8 +1,4 @@
-# definitions
-
-from the prompt:
-
-> Evaluation of how well your classifier is doing will be based on [F1 score](https://en.wikipedia.org/wiki/F-score).
+# def - F-score
 
 the F-score $F _{1}$ [is defined as](https://en.wikipedia.org/wiki/F-score#Definition):
 
@@ -34,7 +30,19 @@ y_{i} \mid \underline{x}_{i}
 	\sim \text{Bernoulli}(p)
 $$
 
-# computing $F_{1}$
+## intuition - bias towards positive predictions
+
+- considering [[#def - F-score|the definition of the F-score]], it has the following properties:
+	- it only rewards correct positive predictions
+	- it penalizes wrong predictions of either category
+	- it neither rewards nor penalizes correct negative predictions
+- this frames the outcomes of a positive or negative prediction as follows:
+	- positive prediction -> either reward or penalty
+	- negative prediction -> either neutral or penalty => *the result is net-negative*
+- given this framing, positive predictions have a more positive affect on the F-score than negative predictions of the same probability
+- -> the F-score biases towards positive predictions, and away from negative predictions
+
+## computing $F_{1}$
 
 given:
 
@@ -66,6 +74,42 @@ F_{1}
 		\\
 \end{align}
 $$
+
+## F-score via true pos. & true neg.
+
+alternatively, we can write the F-score as:
+
+$$
+\begin{align}
+F_{1}
+	&= \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
+	&= \frac{2 \text{TP}}{\text{TP} + (\text{TP} + \text{FP} + \text{FN})} \\
+	&= \frac{2 \text{TP}}{\text{TP} + (n - \text{TN})} \\
+	&= \frac{2}{1 + (n - \text{TN}) / \text{TP}}
+		& \text{assumes $\text{TP} > 0$}
+		\\
+\end{align}
+$$
+
+where $\text{TN}$ is the number of *true negatives*
+
+## F-score via true pos. & pred. pos.
+
+alternatively, we can write the F-score as:
+
+$$
+\begin{align}
+F_{1}
+	&= \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
+	&= \frac{2 \text{TP}}{(\text{TP} + \text{FP}) + (\text{TP} + \text{FN})} \\
+	&= \frac{2 \text{TP}}{\text{PP} + \text{P}} \\
+\end{align}
+$$
+
+where:
+
+- $\text{PP}$ is the number of *predicted positives*
+- $\text{P}$ is the number of *positives*, regardless of the prediction
 
 # simple case - optimize for a given $p$
 
@@ -186,7 +230,7 @@ $$
 
 the only way to compute the expected value in this case would be to work from the integral definition. while possible, this is too intensive for just a conceptual understanding via "napkin-math".
 
-conversely, taking the long-run result, which here is just some function of a set of averages (i.e., TP, FP, FN), allows us to do simpler math via convergence in probabilities:
+conversely, taking the long-run result, which here is just some function of a set of averages (i.e., TP, TN, FP, FN), allows us to do simpler math via convergence in probabilities:
 
 $$
 f \left(\bar{X}, \bar{Y}\right)
@@ -210,7 +254,7 @@ given:
 	- specifically, we don't know the actual response values $\lbrace y _{i}\rbrace _{i = 1}^{n}$
 - some probability of each response value being positive $p_{i} := \Pr (y _{i} = 1)$
 
-suppose we switch the predictions for two points at indices $i, j$
+suppose we switch the predictions for two points at indices $i, j$:
 
 - assume our predictions are opposing; i.e. $\hat{y} _{i} = 0 \neq 1 = \hat{y} _{j}$
 - -> switching predictions yields $\hat{y} _{i}' = 1 \neq 0 = \hat{y} _{j}'$
@@ -419,8 +463,7 @@ $$
 
 where $F _{1}'$ is the F-score after switching predictions
 
-
-specifically, we have shown that **we can increase the expectation of the F-score by switching predictions**:
+specifically, we have shown that **we can increase the expectation of the F-score by switching predictions** when:
 
 - a point $i$ with a higher positive-response probability $p _{i}$ is reassigned a positive response $\cancel{\hat{y} _{i} = 0} \to \hat{y} _{i} = 1$
 - a point $j$ with a lower positive-response probability $p _{j} < p _{i}$ is reassigned a negative response $\cancel{\hat{y} _{j} = 1} \to  \hat{y} _{j} = 0$
@@ -680,13 +723,30 @@ $$
 
 where $F _{1}'$ is the F-score after switching predictions
 
-## implication - $T _{p} = \frac{1}{2} F _{1}$
+## implication - half-score rule
 
 we have shown that converting a negative prediction to a positive prediction will increase the F-score iff that point's positive response probability is more than half of the current F-score, as well as the converse.
 
 -> this implies that **the optimal threshold is half the optimal F-score**
 
-### ❌ algorithm to find optimal threshold / F-score
+## implication - threshold upper bound
+
+the F-score is bounded to the range $[0, 1]$. using [[#implication - half-score rule|the half-score rule]], this also *upper-bounds the optimal threshold to one-half*:
+
+$$
+\max _{F _{1} \in [0, 1]} T _{p}
+	= \max _{F _{1} \in [0, 1]} \frac{1}{2} F _{1}
+	= \frac{1}{2}
+$$
+
+some intuitive reasoning:
+
+- considering [[#intuition|our intuition of the F-score]], we know that the F-score biases towards positive prediction accuracy, vs. negative prediction accuracy
+- -> an optimal strategy would never bias towards negative predictions
+- -> an optimal threshold should never be above half
+
+
+## ❌ algorithm to find optimal threshold / F-score
 
 more generally, consider the following algorithmic process:
 
@@ -953,7 +1013,7 @@ $$
 \end{align}
 $$
 
-as implied from [[#implication - $T _{p} = frac{1}{2} F _{1}$]], the optimal F-score should be twice the optimal threshold:
+as implied from [[#implication - half-score rule]], the optimal F-score should be twice the optimal threshold:
 
 $$
 \begin{align}
@@ -969,11 +1029,11 @@ $$
 
 -> this is exactly the expression we solved when calculating the optimal threshold using the zero-derivative condition
 
-=> ✅ this is consistent with [[#implication - $T _{p} = frac{1}{2} F _{1}$]]
+=> ✅ this is consistent with [[#implication - half-score rule]]
 
-## via half-F-score rule
+## via half-score rule
 
-as derived in [[#implication - $T _{p} = frac{1}{2} F _{1}$]] and demonstrated in [[#e.g. for uniform distribution]], setting the threshold equal to half the F-score will also sufficiently constrain the equation:
+as derived in [[#implication - half-score rule]] and demonstrated in [[#e.g. for uniform distribution]], setting the threshold equal to half the F-score will constrain the equation in the same way as finding the critical point:
 
 $$
 \begin{align}
@@ -1005,23 +1065,17 @@ T _{p} = \lim _{n \to \infty} F _{1}
 \end{align}
 $$
 
--> this is exactly what we derived [[#via critical point]]
+-> this is exactly what we derived in [[#via critical point]]
+
+**=> the half-score rule applies generally for long-run F-score calculations, regardless of the particular positive response probability distribution**
 
 # cheezing the system - calculating true values from reported F-scores
 
 > suppose for any set of predictions, we can calculate a given F-score. can we use this to find the true response values?
 
-from the definition:
+suppose we predict all positives -> $\text{TN} = 0, \text{TP} = \text{P}$
 
-$$
-\begin{align}
-F _{1}
-	&= \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
-	&= \frac{2 \text{TP}}{\text{TP} + n - \text{TN}} \\
-\end{align}
-$$
-
-suppose we predict all positives -> $\text{FN} = \text{TN} = 0, \text{TP} = \text{P}, \text{FP} = \text{N} = n - \text{P}$:
+-> using the [[#F-score via true pos. & true neg.|true pos. & neg. form]]:
 
 $$
 \begin{align}
@@ -1037,13 +1091,11 @@ F _{1}
 \end{align}
 $$
 
-given this, we revisit the F-score equation for the general case with arbitrary predictions:
+given this, we revisit the F-score equation for the general case with arbitrary predictions (using [[#F-score via true pos. & pred. pos.|the pos. & pred. pos. form]]):
 
 $$
 \begin{align}
 F _{1}
-	&= \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}} \\
-	&= \frac{2 \text{TP}}{(\text{TP} + \text{FP}) + (\text{TP} + \text{FN})} \\
 	&= \frac{2 \text{TP}}{\text{PP} + \text{P}} \\
 \to \text{TP}
 	&= \frac{1}{2} F _{1} (\text{PP} + \text{P}) \\
@@ -1060,7 +1112,9 @@ Kaggle intentionally truncates decimal points, so as to avoid "probing". Truncat
 
 $$
 \begin{align}
-\to \tilde{\text{P}} = \text{TP} + \text{FN} &= \frac{(F _{1} \pm \varepsilon)}{n (2 - F _{1} \mp \varepsilon)} \\
-\to \text{TP} &= \frac{1}{2} (F _{1} \pm \varepsilon) (\text{PP} + \tilde{\text{P}}) \\
+\to \tilde{\text{P}}
+	&= \frac{(F _{1} \pm \varepsilon)}{n (2 - F _{1} \mp \varepsilon)} \\
+\to \text{TP}
+	&= \frac{1}{2} (F _{1} \pm \varepsilon) (\text{PP} + \tilde{\text{P}}) \\
 \end{align}
 $$
