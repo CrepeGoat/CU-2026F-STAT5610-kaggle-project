@@ -957,3 +957,14 @@ $$
 where $\text{PP}$ is the number of *predicted positives*, which we also know.
 
 => this means **every future guess after the first can be used to count the number of positives in our predictions**
+
+## with error
+
+Kaggle intentionally truncates decimal points, so as to avoid "probing". Truncation means our F-score is now only accurate up to some error $F _{1} \pm \varepsilon$:
+
+$$
+\begin{align}
+\to \tilde{\text{P}} = \text{TP} + \text{FN} &= \frac{(F _{1} \pm \varepsilon)}{n (2 - F _{1} \mp \varepsilon)} \\
+\to \text{TP} &= \frac{1}{2} (F _{1} \pm \varepsilon) (\text{PP} + \tilde{\text{P}}) \\
+\end{align}
+$$
