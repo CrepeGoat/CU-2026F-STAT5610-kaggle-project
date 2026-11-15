@@ -674,9 +674,13 @@ $$
 
 where $F _{1}'$ is the F-score after switching predictions
 
-## ❌ implication - $T _{p} = \frac{1}{2} F _{1}$
+## implication - $T _{p} = \frac{1}{2} F _{1}$
 
-we have shown that converting a negative prediction to a positive prediction will increase the F-score iff that point's positive response probability is more than half of the current F-score.
+we have shown that converting a negative prediction to a positive prediction will increase the F-score iff that point's positive response probability is more than half of the current F-score, as well as the converse.
+
+-> this implies that **the optimal threshold is half the optimal F-score**
+
+### ❌ algorithm to find optimal threshold / F-score
 
 more generally, consider the following algorithmic process:
 - *note - this algorithm assumes we have access to the F-score, which in typical applications will not be feasible*
@@ -703,7 +707,7 @@ from all three points, we can conclude that:
 - this algorithm must yield an optimal decision strategy
 - the optimal threshold is $T _{p} = \frac{1}{2} F _{1}$, where $F _{1}$ is the optimal achievable F-score for the dataset
 
-### why is this wrong?
+> why is this wrong?
 
 - the F-score decreases once the positive response probability dips below half the F-score
 - once that happens, the bar drops -> it now requires a smaller positive response probability in order to increase the F-score again
@@ -811,7 +815,9 @@ $$
 \end{align}
 $$
 
-the maximum of the long-run F-score will occur at an inflection point
+## via critical point
+
+the maximum of the long-run F-score will occur at a critical point
 
 -> calculate the derivative w.r.t. $T _{p}$ and set it to zero:
 
@@ -870,17 +876,24 @@ $$
 \end{align}
 $$
 
-## for uniform distribution
+## e.g. for uniform distribution
+
+it's hard to reason about this abstractly, so let's use a concrete example, i.e. $P \sim U(0, 1)$:
 
 $$
 \begin{align}
-f(p) &:= 1 \\
-F (p) &= x \\
+f(p) &:= \mathbb{1} \lbrace x \in [0, 1] \rbrace \\
+F (p) &:= \begin{cases}
+		0 & x < 0 \\
+		x & 0 \leq x \leq 1 \\
+		1 & x > 1 \\
+	\end{cases}
+	\\
 E[P] &= \frac{1}{2} \\
 \end{align}
 $$
 
-->:
+-> then our calculated optimal threshold is:
 
 $$
 \begin{align}
@@ -891,29 +904,104 @@ $$
 	&= \left(\int _{T _{p}}^{1} p \ (1) \ dp\right)
 	\\
 \to T _{p} \left(\frac{3}{2} - T _{p}\right)
-	&= \left(1 - T _{p}\right)
+	&= \left.\frac{1}{2} p^{2}\right| _{T _{p}}^{1}
 	\\
-\to \frac{3}{2} T _{p} - T _{p}^{2} - 1 + T _{p}
-	&= 0
+\to T _{p} \left(3 - 2 T _{p}\right)
+	&= \left(1^{2} - T _{p}^{2}\right)
 	\\
-\to T _{p}^{2} - \frac{5}{2} T _{p} + 1
-	&= 0
-	\\
+\to 3 T _{p} - \cancel{2} T _{p}^{2} - 1 \cancel{+ T _{p}^{2}} &= 0 \\
+\to T _{p}^{2} - 3 T _{p} + 1 &= 0 \\
 \to T _{p}
-	&= \frac{- \left(- \frac{5}{2}\right) \pm \sqrt{\left(- \frac{5}{2}\right)^{2} - 4 (1) (1)}}{2 (1)}
-	\\
-	&= \frac{\frac{5}{2} \pm \sqrt{\frac{25}{4} - \frac{16}{4}}}{2} \\
-	&= \frac{\frac{5}{2} \pm \frac{3}{2}}{2} \\
-	&= \frac{5}{4} \pm \frac{3}{4} \\
-	&= \left\lbrace \cancel{\frac{8}{4}}, \frac{2}{4}\right\rbrace \\
-	&= \frac{1}{2} \\
+	&= \frac{- \left(- 3\right) \pm \sqrt{\left(- 3\right)^{2} - 4 (1) (1)}}{2 (1)} \\
+	&= \frac{3 \pm \sqrt{9 - 4}}{2} \\
+	&= \frac{3 \pm \sqrt{5}}{2} \\
+	&\approx \left\lbrace \cancel{2.618}, 0.382 \right\rbrace \\
+	&= \frac{3 - \sqrt{5}}{2} \approx 0.382 \\
 \end{align}
 $$
+
+as a confirmation, plugging this optimal threshold back into the long-run F-score yields:
+
+$$
+\begin{align}
+\lim _{n \to \infty} F _{1}
+	&= \frac
+		{2 \int _{T _{p}}^{1} p \ f _{P} (p) \ dp}
+		{1 - F _{P}(T _{p}) + E [P]}
+		\\
+	&= \frac
+		{2 \int _{T _{p}}^{1} p \ (1) (p) \ dp}
+		{1 - (T _{p}) + (1/2)}
+		\\
+	&= \frac
+		{\cancel{2} (\cancel{1/2} (1^{2} - T _{p}^{2}))}
+		{3/2 - T _{p}}
+		\\
+	&= \frac
+		{1 - T _{p}^{2}}
+		{3/2 - T _{p}}
+		\\
+\end{align}
+$$
+
+as implied from [[#implication - $T _{p} = frac{1}{2} F _{1}$]], the optimal F-score should be twice the optimal threshold:
+
+$$
+\begin{align}
+\to T _{p}
+	&= \frac
+		{1 - T _{p}^{2}}
+		{3 - 2 T _{p}}
+		\\
+\to 1 - T _{p}^{2}
+	&= T _{p} \left(3 - 2 T _{p}\right) \\
+\end{align}
+$$
+
+-> this is exactly the expression we solved when calculating the optimal threshold using the zero-derivative condition
+
+=> ✅ this is consistent with [[#implication - $T _{p} = frac{1}{2} F _{1}$]]
+
+## via half-F-score rule
+
+as derived in [[#implication - $T _{p} = frac{1}{2} F _{1}$]] and demonstrated in [[#e.g. for uniform distribution]], setting the threshold equal to half the F-score will also sufficiently constrain the equation:
+
+$$
+\begin{align}
+T _{p} = \lim _{n \to \infty} F _{1}
+	&= \frac
+		{\cancel{(1/2) 2} \int _{T _{p}}^{1} p \ f _{P} (p) \ dp}
+		{1 - F _{P}(T _{p}) + E [P]}
+		\\
+	&= \frac
+		{\int _{T _{p}}^{1} p \ f _{P} (p) \ dp}
+		{1 - F _{P}(T _{p}) + E [P]}
+		\\
+\to \int _{T _{p}}^{1} p \ f _{P} (p) \ dp
+	&= T _{p} \left(1 - F _{P}(T _{p}) + E [P]\right) \\
+	& \dots \\
+\to 0
+	&= T _{p} \left(
+			\int _{0}^{T _{p}}
+				p \ f _{P} (p)
+			\ dp
+		\right)
+		+ T _{p} \left(
+			\int _{T _{p}}^{1} f _{P} (p) \ dp
+		\right)
+		- (1 - T _{p}) \left(
+			\int _{T _{p}}^{1} p \ f _{P} (p) \ dp
+		\right)
+		\\
+\end{align}
+$$
+
+-> this is exactly what we derived [[#via critical point]]
+
 
 # cheezing the system - calculating true values from reported F-scores
 
 > suppose for any set of predictions, we can calculate a given F-score. can we use this to find the true response values?
-
 
 from the definition:
 
