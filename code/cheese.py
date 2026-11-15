@@ -61,7 +61,7 @@ def make_prediction_series(df_test_index, preds):
     return pd.Series(preds, index=df_test_index, name="Y")
 
 
-def iter_write_preds(n):
+def iter_write_preds():
     test_path = Path("./data/test.csv")
     df_test = pd.read_csv(test_path, index_col="ID")
 
@@ -69,11 +69,11 @@ def iter_write_preds(n):
     # -> workaround - start from the first index value, and extend it
     #   by its full untruncated length, which we know in advance
 
-    # n = len(df_test.index)
-    # index = df_test.index
-    index = pd.Series(
-        np.arange(df_test.index[0], df_test.index[0] + n, dtype=np.int64), name="ID"
-    )
+    n = len(df_test.index)
+    index = df_test.index
+    # index = pd.Series(
+    #     np.arange(df_test.index[0], df_test.index[0] + n, dtype=np.int64), name="ID"
+    # )
 
     for i, lrrange in enumerate(iter_branch_lr(n)):
         pred_vals = np_array_range(n, *lrrange)
@@ -86,7 +86,7 @@ def iter_write_preds(n):
 
 
 def write_preds(n):
-    iter_writes = iter_write_preds(10**5)
+    iter_writes = iter_write_preds()
 
     for _ in range(n):
         next(iter_writes)
