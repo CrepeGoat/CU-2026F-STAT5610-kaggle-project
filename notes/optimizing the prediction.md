@@ -727,7 +727,24 @@ where $F _{1}'$ is the F-score after switching predictions
 
 we have shown that converting a negative prediction to a positive prediction will increase the F-score iff that point's positive response probability is more than half of the current F-score, as well as the converse.
 
+this also means the score *will not change* iff the positive response probability is *equal to* half of the current F-score:
+
+$$
+T _{p} = \frac{1}{2} F _{1}
+	\iff \frac{d}{d T _{p}} F _{1} = 0, \frac{d^{2}}{d T _{p}^{2}} F _{1} < 0
+$$
+
 -> this implies that **the optimal threshold is half the optimal F-score**
+
+## implication - the optimal threshold is the largest critical point
+
+as in typical optimization, the optimal threshold for maximizing the F-score occurs either at a critical point with negative 2nd-derivative, or the boundaries
+
+from [[#implication - half-score rule|the half-score rule]], we know that all such critical points imply that the threshold is half the F-score
+
+**-> the critical point with the largest F-score will be the critical point that occurs at the largest threshold value**
+
+-> there is no need to manually compare F-scores at all the critical points
 
 ## implication - threshold upper bound
 
