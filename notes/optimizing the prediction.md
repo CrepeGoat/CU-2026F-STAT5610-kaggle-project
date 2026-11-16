@@ -1065,3 +1065,50 @@ $$
 -> this is exactly what we derived in [[#via critical point]]
 
 **=> the half-score rule applies generally for long-run F-score calculations, regardless of the particular positive response probability distribution**
+
+## e.g. beta distribution
+
+for another example, consider the Beta distribution:
+
+$$
+\begin{align}
+f _{P}(p) = f _{\text{Beta} (a, b)} (p)
+	&= \frac{\Gamma (a + b)}{\Gamma (a) \Gamma (b)}
+		x^{a - 1} (1 - x)^{b - 1}
+		\cdot \mathbb{1} \lbrace x \in [0, 1] \rbrace
+		\\
+E [P]
+	&= \frac{a}{a + b} \\
+\end{align}
+$$
+
+additionally:
+
+$$
+\begin{align}
+p \ f _{P}(p)
+	&= \frac{a}{a + b} \cdot f _{\text{Beta}(a + 1, b)} (p)
+\end{align}
+$$
+
+thus:
+
+$$
+\begin{align}
+\int _{T _{p}}^{1} p \ f _{P} (p) \ dp
+	&= T _{p} \left(1 - F _{P}(T _{p}) + E [P]\right) \\
+\to \frac{a}{a + b} \int _{T _{p}}^{1} f _{\text{Beta} (a + 1, b)} (p) \ dp
+	&= T _{p} \left(1 - F _{\text{Beta} (a, b)}(T _{p}) + \left(\frac{a}{a + b}\right)\right) \\
+\to \frac{a}{a + b} (1 - F _{\text{Beta} (a + 1, b)}(T _{p}))
+	&= T _{p} \left(\frac{b}{a + b} - F _{\text{Beta} (a, b)}(T _{p})\right) \\
+\to \frac{a}{a + b} - T _{p} \frac{b}{a + b}
+	&= \frac{a}{a + b} F _{\text{Beta} (a + 1, b)}(T _{p})
+		- T _{p} F _{\text{Beta} (a, b)}(T _{p})
+		\\
+\to \frac{a - T _{p} b}{a + b}
+	&= \frac{a}{a + b} F _{\text{Beta} (a + 1, b)}(T _{p})
+		- T _{p} F _{\text{Beta} (a, b)}(T _{p})
+		\\
+\end{align}
+$$
+
