@@ -746,7 +746,7 @@ some intuitive reasoning:
 - -> an optimal threshold should never be above half
 
 
-## ❌ algorithm to find optimal threshold / F-score
+## theoretical algorithm to identify optimal threshold / F-score
 
 more generally, consider the following algorithmic process:
 
@@ -770,17 +770,14 @@ more generally, consider the following algorithmic process:
 1. the predictions follow a threshold strategy, where $T _{p} = \frac{1}{2} F _{1}$
 2. considering the item with the lowest positive response probability above the threshold $\arg \min _{i \mid p _{i} > T _{p}} p _{i}$ - setting this item to predict a negative response *would decrease the F-score*
 3. considering the item with the highest positive response probability below the threshold $\arg \max _{i \mid p _{i} < T _{p}} p _{i}$ - setting this item to predict a positive response *would also decrease the F-score*
+	- -> this point is a local maxima
+4. since the algorithm scanned for local F-score maxima from the highest threshold to the lowest, we know this local maximum corresponds to the largest threshold among all local maxima
+	- the threshold is proportional to the F-score -> this local maximum must also be the global maximum
 
-from all three points, we can conclude that:
+from this, we can conclude that:
 
 - this algorithm must yield an optimal decision strategy
 - the optimal threshold is $T _{p} = \frac{1}{2} F _{1}$, where $F _{1}$ is the optimal achievable F-score for the dataset
-
-> why is this wrong?
-
-- the F-score decreases once the positive response probability dips below half the F-score
-- once that happens, the bar drops -> it now requires a smaller positive response probability in order to increase the F-score again
-- -> the first maximum found may just be a local maximum
 
 # optimal long-run threshold as a function of CDF
 
