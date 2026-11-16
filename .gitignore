@@ -2,6 +2,7 @@
 
 .env
 .ipynb_checkpoints
+*.pyc
 
 code/data
 code/cheese_guesses

@@ -92,5 +92,13 @@ def write_preds(n):
         next(iter_writes)
 
 
+def calc_pos_count(f_score, count):
+    return count * f_score / (2 - f_score)
+
+
+def calc_true_pos_count(f_score, pos_count, pred_pos_count):
+    return 0.5 * f_score * (pos_count + pred_pos_count)
+
+
 if __name__ == "__main__":
     write_preds(40)
