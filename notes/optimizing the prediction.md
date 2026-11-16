@@ -1112,3 +1112,102 @@ $$
 \end{align}
 $$
 
+it appears we don't have an analytical expression for the c.d.f. of a generic Beta distribution $F _{\text{Beta} (a, b)}$ -> not much else we can do here
+
+## estimating from data
+
+our equation of interest, as derived above:
+
+$$
+0 = T _{p} \left(
+			\int _{0}^{T _{p}}
+				p \ f _{P} (p)
+			\ dp
+		\right)
+		+ T _{p} \left(
+			\int _{T _{p}}^{1} f _{P} (p) \ dp
+		\right)
+		- (1 - T _{p}) \left(
+			\int _{T _{p}}^{1} p \ f _{P} (p) \ dp
+		\right)
+$$
+
+this involves repeated integrals of our arbitrary p.d.f. $f _{P}$
+
+one of those integrals is simply the c.d.f., which we can estimate using order statistics:
+
+$$
+\begin{align}
+\int _{T _{p}}^{1} f _{P} (p) \ dp
+	&\approx \frac{1}{n} \arg \min _{i} \lbrace p _{(i)} \mid p _{(i)} > T _{p}\rbrace \\
+	&= \frac{1}{n} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace \\
+\end{align}
+$$
+
+the others are effectively (partial) expectations of $P$ over (a portion of) the RV's domain:
+
+$$
+\begin{align}
+\int _{0}^{T _{p}} p \ f _{P} (p) \ dp
+	&= E [P \mid P < T _{p}] \cdot F _{P} (T _{p}) \\
+\int _{T _{p}}^{1} p \ f _{P} (p) \ dp
+	&= E [P \mid P > T _{p}] \cdot (1 - F _{P} (T _{p})) \\
+\end{align}
+$$
+
+> 1. how do we estimate $E [P \mid P > T _{p}] \cdot (1 - F _{P} (T _{p}))$ from data?
+> 
+> 2. how do we estimate the value of $T _{p}$ in general, s.t. the above equation is satisfied?
+
+### sampled MCMC
+
+concept:
+- MCMC allows us to approximate an integral, given that a multiplicative portion of the integrated expression corresponds to a probability distribution:
+
+$$
+\int _{a}^{b} g(x) \ f _{X} (x) \ dx
+$$
+
+- -> use the given data points as our random distribution:
+
+$$
+\int _{0}^{1} g(p) \ f _{P} (p) \ dp
+	\approx \frac{1}{n} \sum _{i = 1}^{n} g(p _{i})
+$$
+
+-> our estimate would be:
+
+$$
+\begin{align}
+0
+	&= T _{p} \left(
+			\int _{0}^{T _{p}}
+				p \ f _{P} (p)
+			\ dp
+		\right)
+		+ T _{p} \left(
+			\int _{T _{p}}^{1} f _{P} (p) \ dp
+		\right)
+		- (1 - T _{p}) \left(
+			\int _{T _{p}}^{1} p \ f _{P} (p) \ dp
+		\right)
+		\\
+	&\approx T _{p} \left(
+			\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} < T _{p}\rbrace
+		\right)
+		+ T _{p} \left(
+			\frac{1}{n} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+		\right)
+		- (1 - T _{p}) \left(
+			\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+		\right)
+		\\
+\end{align}
+$$
+
+### ...with linear search
+
+- apply function to all data points
+- cache in arrays
+- calculate prefix sums
+- scan from highest prob. to lowest prob. for the met condition
