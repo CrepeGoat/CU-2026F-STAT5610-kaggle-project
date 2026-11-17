@@ -939,22 +939,22 @@ $$
 	&= - T _{p} \left(1 - F _{P}(T _{p}) + E [P]\right)
 		+ \int _{T _{p}}^{1} p \ f _{P} (p) \ dp
 		\\
-	&= T _{p} E [P] + (1 - F _{P} (T _{p})) \left(T _{p} - E [P \mid P > T _{p}]\right) \\
-	&= T _{p} \int _{T _{p}}^{1} f _{P} (p) \ dp
-		+ T _{p} \int _{0}^{1} p f _{P} (p) \ dp
-		- \int _{T _{p}}^{1} p \ f _{P} (p) \ dp
+\to T _{p}
+	&= \frac
+		{\int _{T _{p}}^{1} p \ f _{P} (p) \ dp}
+		{1 - F _{P}(T _{p}) + E [P]}
 		\\
-	&= T _{p} \left(
-			\int _{0}^{T _{p}}
-				p \ f _{P} (p)
-			\ dp
-		\right)
-		+ T _{p} \left(
-			\int _{T _{p}}^{1} f _{P} (p) \ dp
-		\right)
-		- (1 - T _{p}) \left(
-			\int _{T _{p}}^{1} p \ f _{P} (p) \ dp
-		\right)
+	&= \frac
+		{\int _{T _{p}}^{1} p \ f _{P} (p) \ dp}
+		{
+			\left(
+				\int _{T _{p}}^{1} f _{P} (p) \ dp
+			\right)
+			+ 
+			\left(
+				\int _{0}^{1} p \ f _{P} (p) \ dp
+			\right)
+		}
 		\\
 \end{align}
 $$
@@ -1051,7 +1051,7 @@ as derived in [[#implication - half-score rule]] and demonstrated in [[#e.g. for
 
 $$
 \begin{align}
-T _{p} = \lim _{n \to \infty} F _{1}
+T _{p} = \lim _{n \to \infty} \frac{1}{2} F _{1}
 	&= \frac
 		{\cancel{(1/2) 2} \int _{T _{p}}^{1} p \ f _{P} (p) \ dp}
 		{1 - F _{P}(T _{p}) + E [P]}
@@ -1060,28 +1060,24 @@ T _{p} = \lim _{n \to \infty} F _{1}
 		{\int _{T _{p}}^{1} p \ f _{P} (p) \ dp}
 		{1 - F _{P}(T _{p}) + E [P]}
 		\\
-\to \int _{T _{p}}^{1} p \ f _{P} (p) \ dp
-	&= T _{p} \left(1 - F _{P}(T _{p}) + E [P]\right) \\
-	& \dots \\
-\to 0
-	&= T _{p} \left(
-			\int _{0}^{T _{p}}
-				p \ f _{P} (p)
-			\ dp
-		\right)
-		+ T _{p} \left(
-			\int _{T _{p}}^{1} f _{P} (p) \ dp
-		\right)
-		- (1 - T _{p}) \left(
-			\int _{T _{p}}^{1} p \ f _{P} (p) \ dp
-		\right)
+	&= \frac
+		{\int _{T _{p}}^{1} p \ f _{P} (p) \ dp}
+		{
+			\left(
+				\int _{T _{p}}^{1} f _{P} (p) \ dp
+			\right)
+			+ 
+			\left(
+				\int _{0}^{1} p \ f _{P} (p) \ dp
+			\right)
+		}
 		\\
 \end{align}
 $$
 
 -> this is exactly what we derived in [[#via critical point]]
 
-**=> the half-score rule applies generally for long-run F-score calculations, regardless of the particular positive response probability distribution**
+**=> the half-score rule applies generally for long-run F-score calculations, regardless of the particular distribution of positive response probabilities**
 
 ## e.g. beta distribution
 
@@ -1136,33 +1132,33 @@ it appears we don't have an analytical expression for the c.d.f. of a generic Be
 our equation of interest, as derived above:
 
 $$
-0 = T _{p} \left(
-			\int _{0}^{T _{p}}
-				p \ f _{P} (p)
-			\ dp
-		\right)
-		+ T _{p} \left(
+T _{p} = \frac
+	{\int _{T _{p}}^{1} p \ f _{P} (p) \ dp}
+	{
+		\left(
 			\int _{T _{p}}^{1} f _{P} (p) \ dp
 		\right)
-		- (1 - T _{p}) \left(
-			\int _{T _{p}}^{1} p \ f _{P} (p) \ dp
+		+ 
+		\left(
+			\int _{0}^{1} p \ f _{P} (p) \ dp
 		\right)
+	}
 $$
 
 (alternatively, we can write this with indicator functions to avoid having $T _{p}$ in the integral bounds:)
 
 $$
-0 = T _{p} \left(
-		\int _{0}^{1}
-			\mathbb{1} \lbrace p < T _{p}\rbrace \ p \ f _{P} (p)
-		\ dp
-	\right)
-	+ T _{p} \left(
-		\int _{0}^{1} \mathbb{1} \lbrace p > T _{p}\rbrace \ f _{P} (p) \ dp
-	\right)
-	- (1 - T _{p}) \left(
-		\int _{0}^{1} \mathbb{1} \lbrace p > T _{p}\rbrace \ p \ f _{P} (p) \ dp
-	\right)
+\to T _{p} = \frac
+	{\int _{0}^{1} \mathbb{1} \lbrace p > T _{p}\rbrace \cdot p \ f _{P} (p) \ dp}
+	{
+		\left(
+			\int _{0}^{1} \mathbb{1} \lbrace p > T _{p}\rbrace \cdot f _{P} (p) \ dp
+		\right)
+		+ 
+		\left(
+			\int _{0}^{1} p \ f _{P} (p) \ dp
+		\right)
+	}
 $$
 
 this involves repeated integrals of our arbitrary p.d.f. $f _{P}$
@@ -1177,15 +1173,11 @@ $$
 \end{align}
 $$
 
-the others are effectively (partial) expectations of $P$ over (a portion of) the RV's domain:
+the other is effectively a (partial) expectation of $P$ over (a portion of) the RV's domain:
 
 $$
-\begin{align}
-\int _{0}^{T _{p}} p \ f _{P} (p) \ dp
-	&= E [P \mid P < T _{p}] \cdot F _{P} (T _{p}) \\
 \int _{T _{p}}^{1} p \ f _{P} (p) \ dp
-	&= E [P \mid P > T _{p}] \cdot (1 - F _{P} (T _{p})) \\
-\end{align}
+	= E [P \mid P > T _{p}] \cdot (1 - F _{P} (T _{p}))
 $$
 
 > 1. how do we estimate $E [P \mid P > T _{p}] \cdot (1 - F _{P} (T _{p}))$ from data?
@@ -1212,138 +1204,63 @@ $$
 
 $$
 \begin{align}
-0
-	&= T _{p} \left(
-			\int _{0}^{1}
-				\mathbb{1} \lbrace p < T _{p}\rbrace \ p \ f _{P} (p)
-			\ dp
-		\right)
-		+ T _{p} \left(
-			\int _{0}^{1} \mathbb{1} \lbrace p > T _{p}\rbrace \ f _{P} (p) \ dp
-		\right)
-		- (1 - T _{p}) \left(
-			\int _{0}^{1} \mathbb{1} \lbrace p > T _{p}\rbrace \ p \ f _{P} (p) \ dp
-		\right)
-		\\
-	&\approx T _{p} \left(
-			\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} < T _{p}\rbrace
-		\right)
-		+ T _{p} \left(
-			\frac{1}{n} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
-		\right)
-		- (1 - T _{p}) \left(
-			\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
-		\right)
-		\\
-\end{align}
-$$
-
-## ...with linear search
-
-let's rearrange the equation to isolate the threshold term $T _{p}$:
-
-$$
-\begin{align}
-0
-	&\approx T _{p} \left(
-			\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} < T _{p}\rbrace
-		\right)
-		+ T _{p} \left(
-			\frac{1}{n} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
-		\right)
-		- (1 - T _{p}) \left(
-			\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
-		\right)
-		\\
-	&\approx \left(
-			\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} < T _{p}\rbrace
-		\right)
-		+ \left(
-			\frac{1}{n} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
-		\right)
-		\\
-\to \left(\frac{1}{T _{p}} - 1\right) \left(
-		\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
-	\right)
-	&\approx \left(
-			\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} < T _{p}\rbrace
-		\right)
-		+ \left(
-			\frac{1}{n} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
-		\right)
-		\\
-\to \left(\frac{1}{T _{p}} - 1\right)
-	&\approx \frac
-		{
-			\left(
-				\cancel{\frac{1}{n}} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} < T _{p}\rbrace
-			\right)
-			+ \left(
-				\cancel{\frac{1}{n}} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
-			\right)
-		}
-		{
-			\cancel{\frac{1}{n}} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
-		}
-		\\
 \to T _{p}
-	&\approx \frac
-		{
-			\sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
-		}
+	&= \frac
+		{\int _{0}^{1} \mathbb{1} \lbrace p > T _{p}\rbrace \cdot p \ f _{P} (p) \ dp}
 		{
 			\left(
-				\sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} < T _{p}\rbrace
+				\int _{0}^{1} \mathbb{1} \lbrace p > T _{p}\rbrace \cdot f _{P} (p) \ dp
 			\right)
-			+ \left(
-				\sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+			+ 
+			\left(
+				\int _{0}^{1} p \ f _{P} (p) \ dp
 			\right)
-			+ \left(\sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace\right)
 		}
 		\\
 	&\approx \frac
-		{
-			\sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
-		}
+		{\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace}
 		{
 			\left(
-				\sum _{i = 1}^{n} p _{i}
+				\frac{1}{n} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
 			\right)
-			+ \left(
-				\sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+			+ 
+			\left(
+				\frac{1}{n} \sum _{i = 1}^{n} p _{i}
 			\right)
 		}
 		\\
 \end{align}
 $$
 
-while this doesn't allow us to completely / analytically solve for $T _{p}$, due to the indicator function expressions, it does allow us to make a less complex algorithm:
+## ...with linear search algorithm
 
-### algorithm
-
-- order the points by their positive response probability using some $\sigma$ s.t.:
+- order the points in decreasing order by their positive response probability using some $\sigma$ s.t.:
 
 $$
 p _{\sigma (1)}
-	\leq p _{\sigma (2)}
-	\leq \dots
-	\leq p _{\sigma (n)}
+	\geq p _{\sigma (2)}
+	\geq \dots
+	\geq p _{\sigma (n)}
 $$
 
 - calculate sum of $p _{\sigma (i)}$:
 
 $$
-\text{acc} = \sum _{i = 1}^{n} p _{\sigma (i)}
+\text{acc} [n] = \sum _{i = 1}^{n} p _{\sigma (i)}
 $$
 
 
-- calculate suffix-sums (i.e., accumulations) of $p _{\sigma (i)}$:
+- calculate prefix-sums (i.e., accumulations) of $p _{\sigma (i)}$:
 
 $$
 \begin{align}
-\text{acc} _{(+)} [i]
-	&= \sum _{j = i}^{n} p _{\sigma (j)} \\
-	&= \text{acc} _{(+)} [i + 1] + p _{\sigma (i)} \\
+\text{acc} [i]
+	&= \sum _{j = 1}^{i} p _{\sigma (j)} \\
+	&= \begin{cases}
+			\text{acc} [i - 1] + p _{\sigma (i)} & i \geq 1 \\
+			0 & i = 0 \\
+		\end{cases}
+		\\
 \end{align}
 $$
 
@@ -1354,8 +1271,8 @@ $$
 $$
 \text{expr}[i]
 	= \frac
-		{\text{acc} _{(+)} [i + 1]}
-		{\text{acc} + (n - i)}
+		{\text{acc} [i]}
+		{\text{acc}[n] + i}
 $$
 
 - scan from highest prob. to lowest prob. for the threshold condition:
@@ -1364,7 +1281,7 @@ $$
 i^{*}
 	= \max \lbrace
 		i \in \lbrace 1, \dots, n\rbrace
-		\mid p _{\sigma (i)} \leq \text{expr}[i] \leq p _{\sigma (i + 1)}
+		\mid p _{\sigma (i)} \geq \text{expr}[i] \geq p _{\sigma (i + 1)}
 	\rbrace
 $$
 
