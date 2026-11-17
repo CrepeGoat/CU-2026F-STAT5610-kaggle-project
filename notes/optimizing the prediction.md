@@ -725,13 +725,13 @@ where $F _{1}'$ is the F-score after switching predictions
 
 ## implication - half-score rule
 
-we have shown that converting a negative prediction to a positive prediction will increase the F-score iff that point's positive response probability is more than half of the current F-score, as well as the converse.
+we have shown that converting a negative prediction to a positive prediction will increase the F-score iff that point's positive response probability is more than half of the current F-score.
 
 this also means the score *will not change* iff the positive response probability is *equal to* half of the current F-score:
 
 $$
 T _{p} = \frac{1}{2} F _{1}
-	\iff \frac{d}{d T _{p}} F _{1} = 0, \frac{d^{2}}{d T _{p}^{2}} F _{1} < 0
+	\iff \frac{d}{d T _{p}} F _{1} = 0
 $$
 
 -> this implies that **the optimal threshold is half the optimal F-score**
@@ -1131,7 +1131,7 @@ $$
 
 it appears we don't have an analytical expression for the c.d.f. of a generic Beta distribution $F _{\text{Beta} (a, b)}$ -> not much else we can do here
 
-## estimating from data
+# estimating threshold from data
 
 our equation of interest, as derived above:
 
@@ -1147,6 +1147,22 @@ $$
 		- (1 - T _{p}) \left(
 			\int _{T _{p}}^{1} p \ f _{P} (p) \ dp
 		\right)
+$$
+
+(alternatively, we can write this with indicator functions to avoid having $T _{p}$ in the integral bounds:)
+
+$$
+0 = T _{p} \left(
+		\int _{0}^{1}
+			\mathbb{1} \lbrace p < T _{p}\rbrace \ p \ f _{P} (p)
+		\ dp
+	\right)
+	+ T _{p} \left(
+		\int _{0}^{1} \mathbb{1} \lbrace p > T _{p}\rbrace \ f _{P} (p) \ dp
+	\right)
+	- (1 - T _{p}) \left(
+		\int _{0}^{1} \mathbb{1} \lbrace p > T _{p}\rbrace \ p \ f _{P} (p) \ dp
+	\right)
 $$
 
 this involves repeated integrals of our arbitrary p.d.f. $f _{P}$
@@ -1176,7 +1192,7 @@ $$
 > 
 > 2. how do we estimate the value of $T _{p}$ in general, s.t. the above equation is satisfied?
 
-### sampled MCMC
+## sampled MCMC
 
 concept:
 - MCMC allows us to approximate an integral, given that a multiplicative portion of the integrated expression corresponds to a probability distribution:
@@ -1198,15 +1214,15 @@ $$
 \begin{align}
 0
 	&= T _{p} \left(
-			\int _{0}^{T _{p}}
-				p \ f _{P} (p)
+			\int _{0}^{1}
+				\mathbb{1} \lbrace p < T _{p}\rbrace \ p \ f _{P} (p)
 			\ dp
 		\right)
 		+ T _{p} \left(
-			\int _{T _{p}}^{1} f _{P} (p) \ dp
+			\int _{0}^{1} \mathbb{1} \lbrace p > T _{p}\rbrace \ f _{P} (p) \ dp
 		\right)
 		- (1 - T _{p}) \left(
-			\int _{T _{p}}^{1} p \ f _{P} (p) \ dp
+			\int _{0}^{1} \mathbb{1} \lbrace p > T _{p}\rbrace \ p \ f _{P} (p) \ dp
 		\right)
 		\\
 	&\approx T _{p} \left(
@@ -1222,9 +1238,152 @@ $$
 \end{align}
 $$
 
-### ...with linear search
+## ...with linear search
 
-- apply function to all data points
-- cache in arrays
-- calculate prefix sums
-- scan from highest prob. to lowest prob. for the met condition
+let's rearrange the equation to isolate the threshold term $T _{p}$:
+
+$$
+\begin{align}
+0
+	&\approx T _{p} \left(
+			\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} < T _{p}\rbrace
+		\right)
+		+ T _{p} \left(
+			\frac{1}{n} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+		\right)
+		- (1 - T _{p}) \left(
+			\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+		\right)
+		\\
+	&\approx \left(
+			\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} < T _{p}\rbrace
+		\right)
+		+ \left(
+			\frac{1}{n} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+		\right)
+		\\
+\to \left(\frac{1}{T _{p}} - 1\right) \left(
+		\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+	\right)
+	&\approx \left(
+			\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} < T _{p}\rbrace
+		\right)
+		+ \left(
+			\frac{1}{n} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+		\right)
+		\\
+\to \left(\frac{1}{T _{p}} - 1\right)
+	&\approx \frac
+		{
+			\left(
+				\cancel{\frac{1}{n}} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} < T _{p}\rbrace
+			\right)
+			+ \left(
+				\cancel{\frac{1}{n}} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+			\right)
+		}
+		{
+			\cancel{\frac{1}{n}} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+		}
+		\\
+\to T _{p}
+	&\approx \frac
+		{
+			\sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+		}
+		{
+			\left(
+				\sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} < T _{p}\rbrace
+			\right)
+			+ \left(
+				\sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+			\right)
+			+ \left(\sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace\right)
+		}
+		\\
+	&\approx \frac
+		{
+			\sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+		}
+		{
+			\left(
+				\sum _{i = 1}^{n} p _{i}
+			\right)
+			+ \left(
+				\sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+			\right)
+		}
+		\\
+\end{align}
+$$
+
+while this doesn't allow us to completely / analytically solve for $T _{p}$, due to the indicator function expressions, it does allow us to make a less complex algorithm:
+
+### algorithm
+
+- order the points by their positive response probability using some $\sigma$ s.t.:
+
+$$
+p _{\sigma (1)}
+	\leq p _{\sigma (2)}
+	\leq \dots
+	\leq p _{\sigma (n)}
+$$
+
+- calculate sum of $p _{\sigma (i)}$:
+
+$$
+\text{acc} = \sum _{i = 1}^{n} p _{\sigma (i)}
+$$
+
+
+- calculate suffix-sums (i.e., accumulations) of $p _{\sigma (i)}$:
+
+$$
+\begin{align}
+\text{acc} _{(+)} [i]
+	&= \sum _{j = i}^{n} p _{\sigma (j)} \\
+	&= \text{acc} _{(+)} [i + 1] + p _{\sigma (i)} \\
+\end{align}
+$$
+
+	(note - this can be done in linear time)
+
+- calculate expression values for all possible thresholds:
+
+$$
+\text{expr}[i]
+	= \frac
+		{\text{acc} _{(+)} [i + 1]}
+		{\text{acc} + (n - i)}
+$$
+
+- scan from highest prob. to lowest prob. for the threshold condition:
+
+$$
+i^{*}
+	= \max \lbrace
+		i \in \lbrace 1, \dots, n\rbrace
+		\mid p _{\sigma (i)} \leq \text{expr}[i] \leq p _{\sigma (i + 1)}
+	\rbrace
+$$
+
+- -> our estimate is the expression that satisfies this condition:
+
+$$
+T _{p} \approx \text{expr} \left[i^{*}\right]
+$$
+
+## implication - estimate the F-score
+
+the above algorithm gives us an estimate of the optimal threshold for maximizing the F-score.
+
+-> in the absence of a means to calculate the F-score precisely, using [[#implication - half-score rule|the half-score rule]] means **we can use our optimal threshold to estimate the resulting F-score**.
+
+## implication - measure model correctness
+
+again, the above algorithm gives us an estimate of the optimal threshold for maximizing the F-score, and thus also an estimate for the optimal F-score itself. suppose we also have access to the F-score. in this case, the estimate may not "sufficiently agree" with the true F-score. this would imply that some assumption used in this process was violated.
+
+the primary property that we use in this formulation is [[#implication - half-score rule|the half-score rule]]; the main assumption on which this relies is that positive responses are random, and *are characterized by the probabilities $p _{i}$*. a violation of this assumption would mean that the probabilities are not representative of the data; and since in practice these probabilities are generated by a model, it means that *the model itself must be wrong* with respect to the test dataset.
+
+-> in situations where the exact F-score is provided to us, **comparing the estimated and true F-scores gives us a measure of model correctness**.
