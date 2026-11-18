@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import seaborn as sns
 
 
 def estimate_optimal_threshold(probs):
@@ -57,6 +58,18 @@ def sample_probable_f_scores(rng, n, probs, pp_count):
     probs = probs.sort_index()
 
     return calc_f_score(len(probs), tp, tn)
+
+
+def plot_f_scores(empiricals, calculated, reported, rng=np.random.default_rng(1)):
+    # sns.set_theme(style="whitegrid")
+
+    ax = sns.violinplot(y=empiricals)
+    ax.yaxis.set_label_text("F-score")
+
+    ax.hlines(calculated, xmin=-0.5, xmax=0.5, colors="cyan", linestyles="--")
+    ax.hlines(reported, xmin=-0.5, xmax=0.5, colors="red", linestyles="-.")
+
+    return ax
 
 
 if __name__ == "__main__":
