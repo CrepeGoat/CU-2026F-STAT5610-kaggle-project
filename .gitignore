@@ -3,6 +3,8 @@
 .env
 .ipynb_checkpoints
 *.pyc
+__pycache__
 
 code/data
 code/cheese_guesses
+__marimo__

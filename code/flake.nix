@@ -35,7 +35,7 @@
             ++ (with pyPkgs; [
               kaggle
               python-dotenv
-              
+
               jupyterlab
               ipykernel
 
@@ -45,6 +45,7 @@
               scikit-learn
 
               matplotlib
+              marimo
               seaborn
             ]);
           };
