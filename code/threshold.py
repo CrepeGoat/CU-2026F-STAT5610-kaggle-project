@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 
@@ -22,7 +23,7 @@ def estimate_optimal_threshold(probs):
     else:
         i += 1
 
-    result = min(expr(i), probs.iloc[i - 1])
+    result = (i, min(expr(i), probs.iloc[i - 1]))
     probs = probs.sort_index()
 
     return result
@@ -33,6 +34,29 @@ def test_estimate_optimal_threshold():
 
     result = estimate_optimal_threshold(probs)
     print(result)
+
+
+def calc_f_score(n, tp_count, tn_count):
+    return (2 * tp_count) / (tp_count + n - tn_count)
+
+
+def sample_probable_f_scores(rng, n, probs, pp_count):
+    # check that input is a pd.Series object
+    _ = probs.index
+
+    probs = probs.sort_values(ascending=False)
+
+    tp = np.zeros(n)
+    tn = np.zeros(n)
+
+    for i in range(pp_count):
+        tp += rng.binomial(n=1, p=probs.iloc[i], size=n)
+    for i in range(pp_count + 1, len(probs)):
+        tn += rng.binomial(n=1, p=1 - probs.iloc[i], size=n)
+
+    probs = probs.sort_index()
+
+    return calc_f_score(len(probs), tp, tn)
 
 
 if __name__ == "__main__":
