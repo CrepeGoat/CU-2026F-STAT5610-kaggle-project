@@ -67,7 +67,8 @@ def plot_f_scores(empiricals, calculated, reported, rng=np.random.default_rng(1)
     ax.yaxis.set_label_text("F-score")
 
     ax.hlines(calculated, xmin=-0.5, xmax=0.5, colors="cyan", linestyles="--")
-    ax.hlines(reported, xmin=-0.5, xmax=0.5, colors="red", linestyles="-.")
+    if reported is not None:
+        ax.hlines(reported, xmin=-0.5, xmax=0.5, colors="red", linestyles="-.")
 
     return ax
 

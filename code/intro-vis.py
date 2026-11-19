@@ -290,6 +290,22 @@ def _(df_train, mo, sns):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    ## $x_3$ is useless?
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## $x_6$ is useless?
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## $x_7$
     """)
     return

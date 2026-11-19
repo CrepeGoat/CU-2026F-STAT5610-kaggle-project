@@ -46,10 +46,15 @@ def _(mo):
 
 @app.cell
 def _(df_test, df_train, np):
-    df_train["x11"] = (df_train.x1 >= 0).astype(np.int8)
-    df_test["x11"] = (df_test.x1 >= 0).astype(np.int8)
+    cols_categorical = "x4 x5 x10 Y".split()
 
-    active_pred_names = "x2 x4 x5 x7 x9 x10 x11".split()
+    df_train["Y"] = df_train["Y"].astype("category")
+
+    for df in (df_train, df_test):
+        for _col in cols_categorical[:-1]:
+            df[_col] = df[_col].astype("category")
+    
+        df["x1a"] = (df.x1 >= 0).astype(np.int8).astype("category")
     return
 
 
@@ -58,7 +63,7 @@ def _(df_train):
     import statsmodels.api as sm
     import statsmodels.formula.api as smf
 
-    _model = smf.glm('Y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9 + x10 + x11', data=df_train, family=sm.families.Binomial()).fit()
+    _model = smf.glm('Y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9 + x10 + x1a', data=df_train, family=sm.families.Binomial()).fit()
 
     _model.summary()
     return sm, smf
@@ -76,7 +81,7 @@ def _(mo):
 
 @app.cell
 def _(df_train, sm, smf):
-    model = smf.glm('Y ~ x2 + x3 + x4 + x5 + x6 + x7 + x11', data=df_train, family=sm.families.Binomial()).fit()
+    model = smf.glm('Y ~ x2 + x3 + x4 + x5 + x6 + x7 + x1a', data=df_train, family=sm.families.Binomial()).fit()
 
     model.summary()
     return (model,)
@@ -116,7 +121,7 @@ def _(np, pos_prediction_count, prediction_probs, th, threshold):
     th.plot_f_scores(
         empiricals=th.sample_probable_f_scores(rng, 1000, prediction_probs, pos_prediction_count),
         calculated=2 * threshold,
-        reported=0.54023,
+        reported=None,
     )
     return
 
