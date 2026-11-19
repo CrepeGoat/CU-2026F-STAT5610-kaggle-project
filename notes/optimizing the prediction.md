@@ -33,14 +33,14 @@ $$
 ## intuition - bias towards positive predictions
 
 - considering [[#def - F-score|the definition of the F-score]], it has the following properties:
-	- it only rewards correct positive predictions
+	- it rewards correct positive predictions
 	- it penalizes wrong predictions of either category
 	- it neither rewards nor penalizes correct negative predictions
 - this frames the outcomes of a positive or negative prediction as follows:
 	- positive prediction -> either reward or penalty
 	- negative prediction -> either neutral or penalty => *the result is net-negative*
 - given this framing, positive predictions have a more positive affect on the F-score than negative predictions of the same probability
-- -> the F-score biases towards positive predictions, and away from negative predictions
+- **=> the F-score biases towards positive predictions, and away from negative predictions**
 
 ## computing $F_{1}$
 
