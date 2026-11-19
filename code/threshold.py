@@ -37,6 +37,21 @@ def test_estimate_optimal_threshold():
     print(result)
 
 
+def plot_probs(probs, expt_prob, threshold, pos_pred_count):
+    ax = sns.ecdfplot(probs)
+    ax.set_xlim(0, 1)
+    # ax.set_ylim(0, 1)
+
+    neg_pred_prop = 1 - (pos_pred_count / len(probs))
+    ax.hlines(neg_pred_prop, 0, threshold, linestyles="--", colors="darkorange")
+    ax.vlines(threshold, 0, neg_pred_prop, linestyles="--", colors="darkorange")
+
+    ax.vlines(np.mean(probs), 0, 1)
+    ax.vlines(expt_prob, 0, 1, colors="green")
+
+    return ax
+
+
 def calc_f_score(n, tp_count, tn_count):
     return (2 * tp_count) / (tp_count + n - tn_count)
 
@@ -66,9 +81,9 @@ def plot_f_scores(empiricals, calculated, reported, rng=np.random.default_rng(1)
     ax = sns.violinplot(y=empiricals)
     ax.yaxis.set_label_text("F-score")
 
-    ax.hlines(calculated, xmin=-0.5, xmax=0.5, colors="cyan", linestyles="--")
+    ax.hlines(calculated, xmin=-0.5, xmax=0.5, colors="darkorange", linestyles="--")
     if reported is not None:
-        ax.hlines(reported, xmin=-0.5, xmax=0.5, colors="red", linestyles="-.")
+        ax.hlines(reported, xmin=-0.5, xmax=0.5, colors="green", linestyles="-.")
 
     return ax
 

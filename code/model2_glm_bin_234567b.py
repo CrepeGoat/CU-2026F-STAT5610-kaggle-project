@@ -34,12 +34,9 @@ def _(mo):
     mo.md(r"""
     # model overview
 
-    predictors:
-
-    - categorical - $x_4, x_5, x_{10}$
-    - create new predictor $x_{11} := \mathbb{1} \{x_1 >= 0\}$
-
-    model type: manual regression / classification tree
+    - type - logistic regression
+        - implemented as a GLM under a Binomial family
+    - predictor selection method - manual
     """)
     return
 
@@ -53,7 +50,7 @@ def _(df_test, df_train, np):
     for df in (df_train, df_test):
         for _col in cols_categorical[:-1]:
             df[_col] = df[_col].astype("category")
-    
+
         df["x1a"] = (df.x1 >= 0).astype(np.int8).astype("category")
     return
 
@@ -74,7 +71,7 @@ def _(mo):
     mo.md(r"""
     now we remove the insignificant ones ($x_{10}, x_1, x_8, x_9$):
 
-    TODO use forward-backward-lasso to select parameters
+    TODO use forward-backward-lasso to select parameters instead
     """)
     return
 
@@ -104,13 +101,22 @@ def _(mo):
 
 
 @app.cell
-def _(mo, prediction_probs):
+def _(df_train, mo, np, prediction_probs):
     import threshold as th
 
     pos_prediction_count, threshold = th.estimate_optimal_threshold(prediction_probs)
 
     mo.output.append(pos_prediction_count)
     mo.output.append(threshold)
+
+    mo.output.append(
+        th.plot_probs(
+            probs=prediction_probs,
+            expt_prob=np.mean(df_train.Y.astype(np.int64)),
+            threshold=threshold,
+            pos_pred_count=pos_prediction_count,
+        )
+    )
     return pos_prediction_count, th, threshold
 
 
