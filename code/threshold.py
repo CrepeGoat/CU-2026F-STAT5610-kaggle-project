@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.patches import Rectangle
 
 
 def estimate_optimal_threshold(probs):
@@ -38,16 +39,70 @@ def test_estimate_optimal_threshold():
 
 
 def plot_probs(probs, expt_prob, threshold, pos_pred_count):
-    ax = sns.ecdfplot(probs)
-    ax.set_xlim(0, 1)
-    # ax.set_ylim(0, 1)
+    ax = sns.ecdfplot(probs, color="darkgray")
 
     neg_pred_prop = 1 - (pos_pred_count / len(probs))
-    ax.hlines(neg_pred_prop, 0, threshold, linestyles="--", colors="darkorange")
-    ax.vlines(threshold, 0, neg_pred_prop, linestyles="--", colors="darkorange")
+    ax.hlines(
+        neg_pred_prop,
+        0,
+        min(threshold + 0.05, 1),
+        linestyles="--",
+        colors="darkorange",
+    )
+    ax.vlines(
+        threshold,
+        0,
+        min(neg_pred_prop + 0.05, 1),
+        linestyles="--",
+        colors="darkorange",
+    )
+    ax.add_patch(
+        Rectangle(
+            xy=(1, 1),
+            width=1,
+            height=1 - neg_pred_prop,
+            angle=180,
+            # facecolor="violet",
+            alpha=0.1,
+            hatch="//",
+            facecolor="none",
+            hatchcolor="orange",
+            hatch_linewidth=2,
+        )
+    )
 
-    ax.vlines(np.mean(probs), 0, 1)
-    ax.vlines(expt_prob, 0, 1, colors="green")
+    ax.hlines(
+        1 - expt_prob,
+        0,
+        1,
+        colors="darkviolet",
+        linestyle="--",
+        # linewidth=1,
+    )
+    ax.add_patch(
+        Rectangle(
+            xy=(1, 1),
+            width=1,
+            height=expt_prob,
+            angle=180,
+            # facecolor="violet",
+            alpha=0.1,
+            hatch="/",
+            facecolor="none",
+            hatchcolor="violet",
+            hatch_linewidth=8,
+        )
+    )
+
+    ax.set_title("Estimated CDF of Pr(Y = 1)", loc="left")
+    ax.set_ylabel("")
+    ax.set_xticks([0.25, 0.5, 0.75])
+    ax.set_yticks([0.25, 0.5, 0.75])
+    # ax.axis("equal")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+
+    sns.despine(left=True, right=True, top=False, bottom=False)
 
     return ax
 
@@ -76,14 +131,36 @@ def sample_probable_f_scores(rng, n, probs, pp_count):
 
 
 def plot_f_scores(empiricals, calculated, reported, rng=np.random.default_rng(1)):
-    # sns.set_theme(style="whitegrid")
-
-    ax = sns.violinplot(y=empiricals)
+    ax = sns.violinplot(
+        y=empiricals,
+        inner=None,
+        linewidth=0,
+        color="lightgray",
+        # fill=False,
+        # linewidth=10,
+        # linecolor="darkgray",
+    )
     ax.yaxis.set_label_text("F-score")
 
-    ax.hlines(calculated, xmin=-0.5, xmax=0.5, colors="darkorange", linestyles="--")
+    ax.hlines(
+        np.mean(empiricals),
+        xmin=-0.5,
+        xmax=0.5,
+        colors="white",
+        linestyles="-",
+        linewidth=0.75,
+    )
+    ax.hlines(calculated, xmin=-0.5, xmax=0, colors="darkorange", linestyles="--")
     if reported is not None:
-        ax.hlines(reported, xmin=-0.5, xmax=0.5, colors="green", linestyles="-.")
+        ax.hlines(reported, xmin=0, xmax=0.5, colors="green", linestyles="-")
+
+    ax.set_title("Comparison of F-scores", loc="left")
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.set_xticks([])
+    ax.set_xlim(-0.5, 0.5)
+
+    sns.despine(left=True, right=True, top=False, bottom=False)
 
     return ax
 
