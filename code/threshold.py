@@ -3,6 +3,15 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.patches import Rectangle
 
+COLORS = dict(
+    sampled="darkgray",
+    simulated="lightgray",
+    empirical="darkorange",
+    optimal="darkviolet",
+    true_good="green",
+    true_bad="red",
+)
+
 
 def estimate_optimal_threshold(probs):
     # check that input is a pd.Series object
@@ -39,7 +48,7 @@ def test_estimate_optimal_threshold():
 
 
 def plot_probs(probs, expt_prob, threshold, pos_pred_count):
-    ax = sns.ecdfplot(probs, color="darkgray")
+    ax = sns.ecdfplot(probs, color=COLORS["sampled"])
 
     neg_pred_prop = 1 - (pos_pred_count / len(probs))
     ax.hlines(
@@ -47,14 +56,15 @@ def plot_probs(probs, expt_prob, threshold, pos_pred_count):
         0,
         min(threshold + 0.05, 1),
         linestyles="--",
-        colors="darkorange",
+        colors=COLORS["optimal"],
+        label='"optimal" decision threshold',
     )
     ax.vlines(
         threshold,
         0,
         min(neg_pred_prop + 0.05, 1),
         linestyles="--",
-        colors="darkorange",
+        colors=COLORS["optimal"],
     )
     ax.add_patch(
         Rectangle(
@@ -62,11 +72,11 @@ def plot_probs(probs, expt_prob, threshold, pos_pred_count):
             width=1,
             height=1 - neg_pred_prop,
             angle=180,
-            # facecolor="violet",
+            # facecolor=COLORS["empirical"],
             alpha=0.1,
             hatch="//",
             facecolor="none",
-            hatchcolor="orange",
+            hatchcolor=COLORS["optimal"],
             hatch_linewidth=2,
         )
     )
@@ -75,9 +85,10 @@ def plot_probs(probs, expt_prob, threshold, pos_pred_count):
         1 - expt_prob,
         0,
         1,
-        colors="darkviolet",
+        colors=COLORS["empirical"],
         linestyle="--",
         # linewidth=1,
+        label="positive response rate in training",
     )
     ax.add_patch(
         Rectangle(
@@ -85,11 +96,11 @@ def plot_probs(probs, expt_prob, threshold, pos_pred_count):
             width=1,
             height=expt_prob,
             angle=180,
-            # facecolor="violet",
+            # facecolor=COLORS["empirical"],
             alpha=0.1,
             hatch="/",
             facecolor="none",
-            hatchcolor="violet",
+            hatchcolor=COLORS["empirical"],
             hatch_linewidth=8,
         )
     )
@@ -101,6 +112,7 @@ def plot_probs(probs, expt_prob, threshold, pos_pred_count):
     # ax.axis("equal")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
+    ax.legend()
 
     sns.despine(left=True, right=True, top=False, bottom=False)
 
@@ -130,35 +142,80 @@ def sample_probable_f_scores(rng, n, probs, pp_count):
     return calc_f_score(len(probs), tp, tn)
 
 
+def pos_in_sorted(a, x):
+    return np.count_nonzero(x > a)
+
+
 def plot_f_scores(empiricals, calculated, reported, rng=np.random.default_rng(1)):
     ax = sns.violinplot(
         y=empiricals,
         inner=None,
         linewidth=0,
-        color="lightgray",
+        color=COLORS["simulated"],
         # fill=False,
-        # linewidth=10,
-        # linecolor="darkgray",
+        label=f"simulated (n = {len(empiricals)})",
     )
-    ax.yaxis.set_label_text("F-score")
-
     ax.hlines(
-        np.mean(empiricals),
+        np.quantile(empiricals, [0.05, 0.5, 0.95]),
         xmin=-0.5,
         xmax=0.5,
         colors="white",
         linestyles="-",
         linewidth=0.75,
     )
-    ax.hlines(calculated, xmin=-0.5, xmax=0, colors="darkorange", linestyles="--")
+
+    def quantile_text(i, n):
+        if i <= 0:
+            return f"< ~{1 / n:.1%}"
+        if i >= n:
+            return f"> ~{1 - (1 / n):.1%}"
+        else:
+            return f"~{i / n:.1%}"
+
+    ax.hlines(
+        calculated,
+        xmin=-0.5,
+        xmax=0,
+        colors=COLORS["optimal"],
+        linestyles="--",
+        linewidth=1,
+        label="theoretically optimal",
+    )
+    i_calc = pos_in_sorted(empiricals, calculated)
+    ax.text(
+        s=f"{calculated:.3f} ({quantile_text(i_calc, len(empiricals))})",
+        x=0,
+        horizontalalignment="right",
+        y=calculated,
+        verticalalignment="bottom",
+        color=COLORS["optimal"],
+    )
     if reported is not None:
-        ax.hlines(reported, xmin=0, xmax=0.5, colors="green", linestyles="-")
+        ax.hlines(
+            reported,
+            xmin=0,
+            xmax=0.5,
+            colors=COLORS["true_good"],
+            linestyles="-",
+            linewidth=1,
+            label="actual (from Kaggle)",
+        )
+        i_rept = pos_in_sorted(empiricals, reported)
+        ax.text(
+            s=f"{reported:.3f} ({quantile_text(i_rept, len(empiricals))})",
+            x=0,
+            horizontalalignment="left",
+            y=reported,
+            verticalalignment="bottom",
+            color=COLORS["true_good"],
+        )
 
     ax.set_title("Comparison of F-scores", loc="left")
     ax.set_xlabel("")
     ax.set_ylabel("")
     ax.set_xticks([])
     ax.set_xlim(-0.5, 0.5)
+    ax.legend()
 
     sns.despine(left=True, right=True, top=False, bottom=False)
 
