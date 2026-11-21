@@ -1348,3 +1348,30 @@ T _{p} = \frac{3 - \sqrt{5}}{2} \approx 0.382
 $$
 
 -> the approximation derived from the conceptually-representative dataset with **a sample size of $\mathbf{n = 9}$** is **within $\mathbf{\pm 0.011}$** of the true value
+
+# assessing model via threshold
+
+TODO:
+- have a model + test data set -> calculated probabilities for each data point
+- calculated threshold -> made predictions
+- have an F-score for the predictions
+- => what is the minimal change to the model's generated probabilities s.t.:
+	- the reported F-score aligns with the theoretical threshold?
+	- the reported F-score is "feasible" (i.e, w/in a 95% confidence interval of possible F-scores)?
+
+notes:
+- "change to the model's generated probabilities" likely means different things for different models
+	- e.g. for linear regression, gets into the SE for the parameters $\hat{\beta _{i}}$ themselves
+	- -> likely pretty involved
+
+# other questions
+
+## why is the optimal threshold wrong?
+
+> I have a model for a categorical response. For each of a set of cross validations, I fit the model to the CV training set, ran it on the CV test set, then plotted over all thresholds the resulting F-score, calculated from the model probabilities and the true values (which are in the CV test set, and thus are known).
+> 
+> After doing this, my plot shows an optimal F-score that doesn't align with 2x the corresponding threshold, which contradicts the half-score rule. Why the contradiction?
+
+In short, this is because we are calculating F-scores using *concrete observations*, as opposed to expected F-scores using *probabilistic observations*.
+
+The core assumption behind the half-score rule is that the probabilities correctly characterize the response. When the half-score rule doesn't apply, it's probably because this rule has been violated somehow; in the case described above, it's likely because the modeled probabilities don't accurately reflect the actual held-out CV test data. In short, the model isn't generating accurate probabilities on the given dataset.
