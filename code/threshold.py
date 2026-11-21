@@ -86,8 +86,8 @@ def plot_probs(probs, expt_prob, threshold, pos_pred_count):
         0,
         1,
         colors=COLORS["empirical"],
-        linestyle="--",
-        # linewidth=1,
+        linestyle="-",
+        linewidth=0.5,
         label="positive response rate in training",
     )
     ax.add_patch(
@@ -156,7 +156,7 @@ def plot_f_scores(empiricals, calculated, reported, rng=np.random.default_rng(1)
         label=f"simulated (n = {len(empiricals)})",
     )
     ax.hlines(
-        np.quantile(empiricals, [0.05, 0.5, 0.95]),
+        np.quantile(empiricals, [0.025, 0.5, 0.975]),
         xmin=-0.5,
         xmax=0.5,
         colors="white",
@@ -179,7 +179,7 @@ def plot_f_scores(empiricals, calculated, reported, rng=np.random.default_rng(1)
         colors=COLORS["optimal"],
         linestyles="--",
         linewidth=1,
-        label="theoretically optimal",
+        label="theoretical optimal",
     )
     i_calc = pos_in_sorted(empiricals, calculated)
     ax.text(
@@ -214,6 +214,7 @@ def plot_f_scores(empiricals, calculated, reported, rng=np.random.default_rng(1)
     ax.set_xlabel("")
     ax.set_ylabel("")
     ax.set_xticks([])
+    ax.locator_params(axis="y", nbins=3)
     ax.set_xlim(-0.5, 0.5)
     ax.legend()
 
