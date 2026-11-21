@@ -134,7 +134,7 @@ def sample_probable_f_scores(rng, n, probs, pp_count):
 
     for i in range(pp_count):
         tp += rng.binomial(n=1, p=probs.iloc[i], size=n)
-    for i in range(pp_count + 1, len(probs)):
+    for i in range(pp_count, len(probs)):
         tn += rng.binomial(n=1, p=1 - probs.iloc[i], size=n)
 
     probs = probs.sort_index()
