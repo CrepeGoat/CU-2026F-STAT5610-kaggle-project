@@ -105,10 +105,15 @@ def plot_probs(probs, expt_prob, threshold, pos_pred_count):
         )
     )
 
-    ax.set_title("Estimated CDF of Pr(Y = 1)", loc="left")
+    ax.set_title("Estimated CDF of $\\Pr(Y = 1)$", loc="left")
+    ax.set_xlabel("$\\Pr(Y = 1)$")
     ax.set_ylabel("")
     ax.set_xticks([0.25, 0.5, 0.75])
     ax.set_yticks([0.25, 0.5, 0.75])
+    # ax.locator_params(axis="y", nbins=3)
+    # ax.yaxis.set_major_formatter(mtick.PercentFormatter())
+    ax.yaxis.set_major_formatter(lambda x, _: f"{x:.0%}")
+
     # ax.axis("equal")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
