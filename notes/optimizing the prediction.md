@@ -1344,7 +1344,7 @@ the primary property that we use in this formulation is [[#implication - half-sc
 
 ## e.g. empirical threshold for uniform distribution
 
-here we use the process described in [[#sampled MCMC]] and [[#...with linear search algorithm]] for data points that is conceptually represented by a *uniform distribution*
+here we use the process described in [[#algorithm]] for data points that is conceptually represented by a uniform distribution (more precisely, points that are *equi-spaced quantiles of the uniform distribution*)
 
 specifically, consider a set of data points with the following positive prediction probabilities:
 
