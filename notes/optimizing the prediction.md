@@ -1409,4 +1409,37 @@ notes:
 
 In short, this is because we are calculating F-scores using *concrete observations*, as opposed to expected F-scores using *probabilistic observations*.
 
+```d2
+direction: right
+
+model -> fit
+"training data" -> fit
+fit -> x.probabilities
+"test data" -> x.probabilities
+
+x: "correct by construction"
+x.style {
+	stroke: green
+	fill: lightgreen
+}
+
+x.probabilities -> x.threshold
+x.probabilities -> x."expected F-score"
+x.probabilities -> x.simulation
+x."expected F-score" -> x.✅
+x.simulation -> x.✅
+
+y: "no guarantee of correctness"
+y.style {
+	stroke: red
+	fill: pink
+	stroke-dash: 5
+}
+
+x.probabilities -> y.predictions
+x.threshold -> y.predictions
+y.predictions -> y."❌ contradiction"
+y."test response" -> y."❌ contradiction"
+```
+
 The core assumption behind the half-score rule is that the probabilities correctly characterize the response. When the half-score rule doesn't apply, it's probably because this rule has been violated somehow; in the case described above, it's likely because the modeled probabilities don't accurately reflect the actual held-out CV test data. In short, the model isn't generating accurate probabilities on the given dataset.
