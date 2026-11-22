@@ -26,6 +26,7 @@
           pkgs = import nixpkgs { inherit system; };
           python = pkgs.python314;
           pyPkgs = pkgs.python314Packages;
+          inherit (pkgs.lib) callPackageWith;
         in
         {
           default = pkgs.mkShell {
@@ -47,7 +48,8 @@
               matplotlib
               marimo
               seaborn
-            ]);
+            ])
+            ++ [ (callPackageWith (pkgs // pyPkgs) ./nix/pyGAM.nix { }) ];
           };
         }
       );
