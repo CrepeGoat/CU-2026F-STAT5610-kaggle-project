@@ -1218,21 +1218,56 @@ $$
 		}
 		\\
 	&\approx \frac
-		{\frac{1}{n} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace}
+		{\cancel{\frac{1}{n}} \sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace}
 		{
 			\left(
-				\frac{1}{n} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+				\cancel{\frac{1}{n}} \sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
 			\right)
 			+ 
 			\left(
-				\frac{1}{n} \sum _{i = 1}^{n} p _{i}
+				\cancel{\frac{1}{n}} \sum _{i = 1}^{n} p _{i}
 			\right)
+		}
+		\\
+	&= \frac
+		{\sum _{i = 1}^{n} p _{i} \cdot \mathbb{1} \lbrace p _{i} > T _{p}\rbrace}
+		{
+			\sum _{i = 1}^{n} \mathbb{1} \lbrace p _{i} > T _{p}\rbrace
+			+ \sum _{i = 1}^{n} p _{i}
 		}
 		\\
 \end{align}
 $$
 
-## ...with linear search algorithm
+
+## ...with linear search
+
+let's order the points in decreasing order by their positive response probability using some $\sigma$ s.t.:
+
+$$
+p _{\sigma (1)}
+	\geq p _{\sigma (2)}
+	\geq \dots
+	\geq p _{\sigma (n)}
+$$
+
+let $k$ be the index at which the threshold divides the data, s.t.:
+
+$$
+p _{\sigma (k)} \geq T _{p} \geq p _{\sigma (k + 1)}
+$$
+
+then the expression can be rewritten with $k$ as:
+
+$$
+\boxed{
+	T _{p} = \frac
+		{\sum _{i = 1}^{k} p _{\sigma (i)}}
+		{k + \sum _{i = 1}^{n} p _{i}}
+}
+$$
+
+## algorithm
 
 - order the points in decreasing order by their positive response probability using some $\sigma$ s.t.:
 
