@@ -51,36 +51,17 @@ def plot_probs(probs, expt_prob, threshold, pos_pred_count):
     ax = sns.ecdfplot(probs, color=COLORS["sampled"])
 
     neg_pred_prop = 1 - (pos_pred_count / len(probs))
-    ax.hlines(
-        neg_pred_prop,
-        0,
-        min(threshold + 0.05, 1),
-        linestyles="--",
-        colors=COLORS["optimal"],
-        label='"optimal" decision threshold',
-    )
+
+    # visualize threshold
     ax.vlines(
         threshold,
         0,
         min(neg_pred_prop + 0.05, 1),
-        linestyles="--",
+        linestyles="-",
         colors=COLORS["optimal"],
     )
-    ax.add_patch(
-        Rectangle(
-            xy=(1, 1),
-            width=1,
-            height=1 - neg_pred_prop,
-            angle=180,
-            # facecolor=COLORS["empirical"],
-            alpha=0.1,
-            hatch="//",
-            facecolor="none",
-            hatchcolor=COLORS["optimal"],
-            hatch_linewidth=2,
-        )
-    )
 
+    # compare training response rate / max TP vs. prediction response rate / max TN
     ax.hlines(
         1 - expt_prob,
         0,
@@ -88,7 +69,7 @@ def plot_probs(probs, expt_prob, threshold, pos_pred_count):
         colors=COLORS["empirical"],
         linestyle="-",
         linewidth=0.5,
-        label="positive response rate in training",
+        label="training response rate / max TP rate",
     )
     ax.add_patch(
         Rectangle(
@@ -97,12 +78,55 @@ def plot_probs(probs, expt_prob, threshold, pos_pred_count):
             height=expt_prob,
             angle=180,
             # facecolor=COLORS["empirical"],
-            alpha=0.1,
+            alpha=0.3,
             hatch="/",
             facecolor="none",
             hatchcolor=COLORS["empirical"],
-            hatch_linewidth=8,
+            hatch_linewidth=0.5,
         )
+    )
+
+    ax.hlines(
+        neg_pred_prop,
+        0,
+        1,
+        linestyles="-",
+        colors=COLORS["optimal"],
+        linewidth=0.5,
+        label='"optimal" threshold / max TN rate',
+    )
+    ax.add_patch(
+        Rectangle(
+            xy=(0, 0),
+            width=1,
+            height=neg_pred_prop,
+            # facecolor=COLORS["empirical"],
+            alpha=0.3,
+            hatch="//",
+            facecolor="none",
+            hatchcolor=COLORS["optimal"],
+            hatch_linewidth=0.5,
+        )
+    )
+
+    # compare response rates - modeled test mean vs. training sample mean
+    ax.vlines(
+        expt_prob,
+        0,
+        1,
+        colors=COLORS["empirical"],
+        linestyle="-.",
+        # linewidth=4,
+        label="",
+    )
+    ax.vlines(
+        np.mean(probs),
+        0,
+        1,
+        colors=COLORS["sampled"],
+        linestyle="--",
+        # linewidth=2,
+        label="mean modeled response rate",
     )
 
     ax.set_title("Estimated CDF of $\\Pr(Y = 1)$", loc="left")
