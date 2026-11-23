@@ -152,23 +152,40 @@ def calc_f_score(n, tp_count, tn_count):
     return (2 * tp_count) / (tp_count + n - tn_count)
 
 
-def sample_probable_f_scores(rng, n, probs, pp_count):
+def sample_probable_f_scores(rng, n, probs, pp_count, report_count):
     # check that input is a pd.Series object
     _ = probs.index
 
     probs = probs.sort_values(ascending=False)
-
     tp = np.zeros(n)
     tn = np.zeros(n)
+    threshold_mask = np.zeros_like(probs, dtype=np.bool)
+    threshold_mask[:pp_count] = True
 
-    for i in range(pp_count):
-        tp += rng.binomial(n=1, p=probs.iloc[i], size=n)
-    for i in range(pp_count, len(probs)):
-        tn += rng.binomial(n=1, p=1 - probs.iloc[i], size=n)
+    for i in range(n):
+        report_mask = np.zeros_like(probs, dtype=np.bool)
+        report_mask[:report_count] = True
+        np.random.shuffle(report_mask)
+
+        tp[i] = np.sum(
+            rng.binomial(
+                n=1,
+                p=probs.iloc[np.logical_and(report_mask, threshold_mask)],
+            )
+        )
+        tn[i] = np.sum(
+            rng.binomial(
+                n=1,
+                p=1
+                - probs.iloc[
+                    np.logical_and(report_mask, np.logical_not(threshold_mask))
+                ],
+            )
+        )
 
     probs = probs.sort_index()
 
-    return calc_f_score(len(probs), tp, tn)
+    return calc_f_score(report_count, tp, tn)
 
 
 def pos_in_sorted(a, x):
