@@ -1,8 +1,9 @@
-kaggle
+kagglehub
 python-dotenv
 
 jupyterlab
 ipykernel
+marimo
 
 numpy
 pandas

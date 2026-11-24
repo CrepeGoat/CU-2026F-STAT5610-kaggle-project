@@ -34,11 +34,12 @@
               python
             ]
             ++ (with pyPkgs; [
-              kaggle
+              kagglehub
               python-dotenv
 
               jupyterlab
               ipykernel
+              marimo
 
               numpy
               pandas
@@ -46,7 +47,6 @@
               scikit-learn
 
               matplotlib
-              marimo
               seaborn
             ])
             ++ [ (callPackageWith (pkgs // pyPkgs) ./nix/pyGAM.nix { }) ];
