@@ -45,6 +45,7 @@
               pandas
               statsmodels
               scikit-learn
+              sortedcontainers
 
               matplotlib
               seaborn
