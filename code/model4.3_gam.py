@@ -262,12 +262,17 @@ def _(df_test, df_train, np):
             break
         _terms = candidate_terms[i_min]
         _score = candidate_scores[i_min]
-    return
+    return LogisticGAM, make_formula
 
 
 @app.cell
-def _():
-    return
+def _(LogisticGAM, df_train, make_formula):
+    model = LogisticGAM(
+        make_formula((('x1', 'x2', 'x3', 'x6', 'x7'), ('x1a', 'x5', 'x6', 'x7')))
+    )
+
+    gam = model.fit(df_train.drop("Y", axis=1), df_train.Y)
+    return (gam,)
 
 
 @app.cell(hide_code=True)
@@ -374,9 +379,8 @@ def _(predictions):
     import os.path
     import pathlib
 
-    notebook_path = os.environ.get("JPY_SESSION_NAME")
     submission_filepath = pathlib.Path(
-        f"./submissions/{os.path.splitext(os.path.basename(notebook_path))[0]}.csv"
+        f"./submissions/{os.path.splitext(os.path.basename(__file__))[0]}.csv"
     )
     print(f"saving submission file to {submission_filepath}")
     predictions.to_csv(submission_filepath)
